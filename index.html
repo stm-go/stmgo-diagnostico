@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diagnóstico de Segurança Digital — stmgo · Passo 4</title>
+<style>
+:root{--navy:#072249;--orange:#FE7D53;--pink:#9F0066;--light:#f5f6f8;--muted:#667085;--success:#15803d;--danger:#b42318}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,Arial,sans-serif;background:var(--light);color:var(--navy)}
+button,input,textarea,select{font:inherit}button{cursor:pointer}
+.shell{max-width:980px;margin:0 auto;padding:24px}.hidden{display:none!important}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:24px}
+.brand{font-size:26px;font-weight:900}.brand span{background:linear-gradient(135deg,var(--orange),var(--pink));-webkit-background-clip:text;color:transparent}
+.badge{font-size:12px;color:var(--muted);background:#fff;border:1px solid #e4e7ec;padding:8px 12px;border-radius:999px}
+.card{background:#fff;border:1px solid #eaecf0;border-radius:20px;padding:28px;box-shadow:0 8px 24px rgba(7,34,73,.06)}
+.hero{min-height:75vh;display:grid;place-items:center}.hero .card{max-width:720px;text-align:center;padding:50px}
+h1{font-size:38px;line-height:1.1;margin:0 0 14px}h2{font-size:28px;margin:0 0 8px}h3{margin:0 0 8px}p{line-height:1.6}.lead{color:var(--muted);font-size:17px}
+.btn{border:0;border-radius:12px;padding:14px 20px;font-weight:750}.btn-primary{color:#fff;background:linear-gradient(135deg,var(--orange),var(--pink))}.btn-secondary{color:var(--navy);background:#fff;border:1px solid #d0d5dd}.btn-row{display:flex;gap:12px;justify-content:flex-end;margin-top:24px;flex-wrap:wrap}.home-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:24px}.saved-note{margin-top:18px;color:var(--muted);font-size:14px}.file-input{display:none}.import-status{margin-top:14px;font-size:14px;color:var(--muted)}
+.progress{height:8px;background:#e4e7ec;border-radius:99px;overflow:hidden;margin:16px 0 28px}.progress>div{height:100%;background:linear-gradient(135deg,var(--orange),var(--pink));transition:.2s}
+.question{padding:20px 0;border-top:1px solid #eee}.question:first-of-type{border-top:0}.question-title{font-weight:750;font-size:17px;margin-bottom:12px}.options{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.option{padding:12px;border:1px solid #d0d5dd;background:#fff;border-radius:10px;color:#344054;font-weight:650}.option.selected{border-color:var(--orange);background:#fff3ee;color:#9f2900}
+textarea,input,select{width:100%;border:1px solid #d0d5dd;border-radius:10px;padding:12px;color:#101828;background:#fff}textarea{min-height:78px;margin-top:10px;resize:vertical}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}label{display:block;font-size:13px;font-weight:700;color:#475467;margin-bottom:6px}
+.review-section{border-top:1px solid #eee;padding:18px 0}.review-line{display:flex;justify-content:space-between;gap:12px;color:#475467}.warning{background:#fff7ed;border:1px solid #fed7aa;padding:14px;border-radius:12px;color:#9a3412;margin:16px 0}
+.score-main{text-align:center;padding:28px}.score-number{font-size:72px;font-weight:900;line-height:1;background:linear-gradient(135deg,var(--orange),var(--pink));-webkit-background-clip:text;color:transparent}.level{display:inline-block;margin-top:12px;padding:8px 16px;border-radius:999px;background:#eef2ff;font-weight:800}
+.score-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:20px}.score-card{background:#fff;border:1px solid #eaecf0;border-radius:16px;padding:18px}.score-card strong{font-size:30px;display:block;margin-top:8px}
+.rec{background:#fff;border-left:4px solid var(--orange);border-radius:12px;padding:16px;margin:12px 0}.rec small{color:var(--muted)}
+
+.history-item{display:grid;grid-template-columns:1fr auto;gap:16px;align-items:center;border:1px solid #eaecf0;border-radius:14px;padding:18px;margin-top:14px;background:#fff}
+.history-title{font-weight:800;font-size:17px}.history-meta,.result-meta{color:var(--muted);font-size:13px;margin-top:5px}.history-score{font-size:28px;font-weight:900;text-align:right}.history-actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap;margin-top:8px}.btn-small{padding:8px 11px;border-radius:8px;font-size:12px}.empty-state{text-align:center;padding:34px;color:var(--muted);border:1px dashed #d0d5dd;border-radius:14px;margin-top:20px}
+@media(max-width:720px){.shell{padding:14px}.hero .card{padding:30px 20px}h1{font-size:30px}.options,.score-grid,.grid{grid-template-columns:1fr}.topbar{align-items:flex-start}.history-item{grid-template-columns:1fr}.history-score{text-align:left}.history-actions{justify-content:flex-start}}
+@media print{.topbar,.btn-row{display:none!important}body{background:#fff}.card{box-shadow:none;border:0}.shell{max-width:none}}
+</style>
+</head>
+<body>
+<div class="shell">
+  <div class="topbar"><div class="brand">stm<span>go</span></div><div class="badge" id="statusBadge">Salvamento local ativo — dados não são enviados</div></div>
+
+  <section id="screen-home" class="hero">
+    <div class="card">
+      <h1>Diagnóstico de Segurança Digital</h1>
+      <p class="lead">Responda às perguntas e receba uma visão inicial da maturidade da sua empresa, com recomendações automáticas.</p>
+      <div class="home-actions">
+        <button class="btn btn-primary" id="startBtn">Iniciar novo diagnóstico</button>
+        <button class="btn btn-secondary" id="importBtn">Importar planilha CSV</button>
+        <button class="btn btn-secondary hidden" id="continueBtn">Continuar diagnóstico salvo</button>
+        <button class="btn btn-secondary" id="historyBtn">Histórico de diagnósticos</button>
+      </div>
+      <input class="file-input" type="file" id="csvInput" accept=".csv,text/csv">
+      <div class="import-status" id="importStatus"></div>
+      <div class="saved-note">As respostas ficam salvas somente neste navegador.</div>
+    </div>
+  </section>
+
+  <section id="screen-questions" class="hidden">
+    <div class="card">
+      <div id="stepLabel" class="badge"></div>
+      <h2 id="sectionTitle"></h2><p id="sectionDescription" class="lead"></p>
+      <div class="progress"><div id="progressBar"></div></div>
+      <div id="questionsContainer"></div>
+      <div class="btn-row"><button class="btn btn-secondary" id="prevBtn">Voltar</button><button class="btn btn-primary" id="nextBtn">Continuar</button></div>
+    </div>
+  </section>
+
+  <section id="screen-client" class="hidden">
+    <div class="card"><div class="badge">Etapa 5 de 6</div><h2>Dados do cliente</h2><p class="lead">Preencha os dados que aparecerão no diagnóstico.</p>
+      <div class="grid">
+        <div><label>Nome da empresa *</label><input id="companyName"></div><div><label>Nome do contato *</label><input id="contactName"></div>
+        <div><label>E-mail</label><input id="contactEmail" type="email"></div><div><label>Telefone</label><input id="contactPhone"></div>
+        <div><label>Número de colaboradores</label><input id="employeeCount" type="number" min="1"></div><div><label>Segmento</label><input id="segment"></div>
+      </div>
+      <div><label style="margin-top:16px">Observações gerais</label><textarea id="clientNotes"></textarea></div>
+      <div class="btn-row"><button class="btn btn-secondary" id="clientBackBtn">Voltar</button><button class="btn btn-primary" id="reviewBtn">Revisar diagnóstico</button></div>
+    </div>
+  </section>
+
+  <section id="screen-review" class="hidden">
+    <div class="card"><div class="badge">Etapa 6 de 6</div><h2>Revisão</h2><p class="lead">Confira os dados antes de gerar o resultado.</p>
+      <div id="reviewContent"></div><div id="reviewWarning" class="warning hidden"></div>
+      <div class="btn-row"><button class="btn btn-secondary" id="reviewBackBtn">Voltar</button><button class="btn btn-primary" id="generateBtn">Gerar diagnóstico</button></div>
+    </div>
+  </section>
+
+  <section id="screen-history" class="hidden">
+    <div class="card">
+      <div class="badge">Armazenado neste navegador</div>
+      <h2>Histórico de diagnósticos</h2>
+      <p class="lead">Consulte resultados concluídos, reabra um diagnóstico ou exclua registros antigos.</p>
+      <div id="historyList"></div>
+      <div class="btn-row"><button class="btn btn-secondary" id="historyBackBtn">Voltar ao início</button></div>
+    </div>
+  </section>
+
+  <section id="screen-result" class="hidden">
+    <div class="card">
+      <div class="score-main"><div class="badge">Resultado do diagnóstico</div><h2 id="resultCompany"></h2><div id="resultMeta" class="result-meta"></div><div class="score-number" id="globalScore"></div><div class="level" id="maturityLevel"></div><p class="lead" id="maturityDescription"></p></div>
+      <h3>Resultado por área</h3><div class="score-grid" id="areaScores"></div>
+      <h3 style="margin-top:30px">Recomendações prioritárias</h3><div id="recommendations"></div>
+      <div class="btn-row"><button class="btn btn-secondary" id="resultHomeBtn">Início</button><button class="btn btn-secondary" id="downloadJsonBtn">Baixar dados</button><button class="btn btn-secondary" id="restartBtn">Novo diagnóstico</button><button class="btn btn-primary" onclick="window.print()">Exportar / imprimir PDF</button></div>
+    </div>
+  </section>
+</div>
+<script>
+const CONFIG = {"schemaVersion": 1, "id": "stmgo-security-diagnostic-v1", "name": "Diagnóstico de Segurança Digital stmgo", "description": "Questionário inicial baseado no modelo atual da stmgo.", "answerOptions": [{"id": "yes", "label": "Sim", "score": 100, "requiresReview": false}, {"id": "partial", "label": "Parcialmente", "score": 50, "requiresReview": false}, {"id": "no", "label": "Não", "score": 0, "requiresReview": false}, {"id": "unknown", "label": "Não sei responder", "score": null, "requiresReview": true}], "maturityLevels": [{"id": "critical", "name": "Crítico", "min": 0, "max": 20, "description": "A segurança da informação ainda não possui controles mínimos suficientes e demanda ações emergenciais."}, {"id": "initial", "name": "Inicial", "min": 21, "max": 40, "description": "Já existem iniciativas pontuais, porém ainda há pouca padronização, gestão e acompanhamento."}, {"id": "moderate", "name": "Moderado", "min": 41, "max": 60, "description": "A empresa possui alguns processos e ferramentas, mas ainda existem limitações de implementação e controle."}, {"id": "conscious", "name": "Consciente", "min": 61, "max": 80, "description": "Os controles estão mais consolidados, embora ainda existam oportunidades de evolução estratégica."}, {"id": "optimized", "name": "Otimizado", "min": 81, "max": 100, "description": "A segurança é tratada de forma estratégica, com gestão responsável e melhoria contínua."}], "sections": [{"id": "gestao", "name": "Gestão", "order": 1, "description": "Avalia políticas, responsabilidades, licenciamento e conscientização.", "questions": [{"id": "GES-01", "order": 1, "text": "Tem um time de TI ou parceiro cuidando da tecnologia da empresa?", "required": true, "weight": 1, "recommendationKey": "it-responsibility", "aliases": ["Tem um time de TI ou parceiro cuidando da tecnologia da empresa?"]}, {"id": "GES-02", "order": 2, "text": "Tem regras escritas sobre como são protegidos os dados da empresa?", "required": true, "weight": 1, "recommendationKey": "security-policies", "aliases": ["Tem regras escritas sobre como é protegido os dados da empresa?"]}, {"id": "GES-03", "order": 3, "text": "Tem regras para o uso da internet pelos colaboradores?", "required": true, "weight": 1, "recommendationKey": "acceptable-use", "aliases": ["Tem regras para o uso da internet pelos colaboradores?"]}, {"id": "GES-04", "order": 4, "text": "A maioria dos programas que a empresa usa são legalizados? Ex.: Windows e Office.", "required": true, "weight": 1, "recommendationKey": "software-licensing", "aliases": ["A maioria dos programas que a empresa usa são legalizados? Ex: Windows, Office"]}, {"id": "GES-05", "order": 5, "text": "Capacita os colaboradores sobre como se proteger online?", "required": true, "weight": 1, "recommendationKey": "security-awareness", "aliases": ["Capacita os colaboradores sobre como se proteger online?"]}]}, {"id": "controle", "name": "Controle", "order": 2, "description": "Avalia proteção de endpoints, navegação, e-mail e instalação de programas.", "questions": [{"id": "CON-01", "order": 1, "text": "Bloqueia sites perigosos ou inadequados para o trabalho?", "required": true, "weight": 1, "recommendationKey": "web-filtering", "aliases": ["Bloqueia sites perigosos ou inadequados para o trabalho?"]}, {"id": "CON-02", "order": 2, "text": "Possui antivírus corporativo com controle centralizado de todos os equipamentos?", "required": true, "weight": 1, "recommendationKey": "endpoint-protection", "aliases": ["Possui anti-vírus corporativo com controle centralizado de todos os equipamentos?"]}, {"id": "CON-03", "order": 3, "text": "Tem antivírus em todos os computadores?", "required": true, "weight": 1, "recommendationKey": "endpoint-protection", "aliases": ["Tem antivírus em todos os computadores?"]}, {"id": "CON-04", "order": 4, "text": "O antivírus é atualizado e checado continuamente, e não apenas instalado?", "required": true, "weight": 1, "recommendationKey": "endpoint-monitoring", "aliases": ["O antivírus é atualizado e checado o tempo todo, não só instalado?"]}, {"id": "CON-05", "order": 5, "text": "Tem filtro antispam para bloquear e-mails falsos?", "required": true, "weight": 1, "recommendationKey": "email-security", "aliases": ["Tem filtro anti-spam para bloquear e-mails falsos?"]}, {"id": "CON-06", "order": 6, "text": "Controla dispositivos externos, como pendrive e HD externo, para evitar vazamento de dados?", "required": true, "weight": 1, "recommendationKey": "removable-media", "aliases": ["Controla dispositivos externos (pendrive, hd externo) para evitar vazamento de dados?"]}, {"id": "CON-07", "order": 7, "text": "Tem regras para instalar programas nos computadores?", "required": true, "weight": 1, "recommendationKey": "software-installation", "aliases": ["Tem regras para instalar programas nos computadores?"]}]}, {"id": "disponibilidade", "name": "Disponibilidade", "order": 3, "description": "Avalia redundância de internet, backup e continuidade da operação.", "questions": [{"id": "DIS-01", "order": 1, "text": "Possui mais de um link de internet?", "required": true, "weight": 1, "recommendationKey": "internet-redundancy", "aliases": ["Possui mais de um link de internet?"]}, {"id": "DIS-02", "order": 2, "text": "Se um link de internet cair, o outro entra automaticamente?", "required": true, "weight": 1, "recommendationKey": "internet-failover", "aliases": ["Se um link de internet \"cai\" o outro entra automaticamente?"]}, {"id": "DIS-03", "order": 3, "text": "Tem backup dos dados da empresa?", "required": true, "weight": 1, "recommendationKey": "backup-coverage", "aliases": ["Tem backup dos dados da empresa?"]}, {"id": "DIS-04", "order": 4, "text": "Guarda cópias de backup fora da empresa?", "required": true, "weight": 1, "recommendationKey": "offsite-backup", "aliases": ["Guarda cópias de backup fora da empresa?"]}, {"id": "DIS-05", "order": 5, "text": "Testa os backups com frequência para verificar se funcionam?", "required": true, "weight": 1, "recommendationKey": "restore-testing", "aliases": ["Testa os backups com frequência para ver se funcionam?"]}, {"id": "DIS-06", "order": 6, "text": "Tem um plano caso a rede ou os equipamentos parem?", "required": true, "weight": 1, "recommendationKey": "continuity-plan", "aliases": ["Tem um plano caso a rede ou equipamentos pararem?"]}]}, {"id": "rastreabilidade", "name": "Rastreabilidade", "order": 4, "description": "Avalia registros de atividade, auditoria e separação da rede.", "questions": [{"id": "RAS-01", "order": 1, "text": "Sabe o que seus colaboradores acessam na internet no dia a dia?", "required": true, "weight": 1, "recommendationKey": "activity-monitoring", "aliases": ["Sabe o que seus colaboradores acessam na internet no dia a dia?"]}, {"id": "RAS-02", "order": 2, "text": "Se um arquivo é apagado, sabe quem fez isso?", "required": true, "weight": 1, "recommendationKey": "file-auditing", "aliases": ["Se um arquivo é apagado, sabe quem fez isso?"]}, {"id": "RAS-03", "order": 3, "text": "A internet de visitantes é separada da rede que os colaboradores usam?", "required": true, "weight": 1, "recommendationKey": "network-segmentation", "aliases": ["A internet de visitantes é separada da rede que so colaboradores usam?"]}]}], "recommendations": [{"key": "it-responsibility", "title": "Definir responsabilidade pela gestão de TI", "description": "Formalizar quem cuida da tecnologia, dos fornecedores, das atualizações e dos controles de segurança.", "severity": {"partial": "medium", "no": "high"}, "priority": 2}, {"key": "security-policies", "title": "Formalizar políticas de proteção de dados", "description": "Criar regras simples e documentadas para acesso, armazenamento, compartilhamento e descarte de informações.", "severity": {"partial": "medium", "no": "high"}, "priority": 2}, {"key": "acceptable-use", "title": "Criar política de uso aceitável da internet", "description": "Definir orientações claras sobre navegação, downloads, uso de contas corporativas e acesso a conteúdos inadequados.", "severity": {"partial": "low", "no": "medium"}, "priority": 3}, {"key": "software-licensing", "title": "Regularizar e inventariar os softwares utilizados", "description": "Manter licenças válidas e um inventário atualizado para reduzir riscos legais, operacionais e de segurança.", "severity": {"partial": "medium", "no": "high"}, "priority": 2}, {"key": "security-awareness", "title": "Implantar conscientização periódica em segurança", "description": "Treinar os colaboradores sobre golpes, senhas, e-mails suspeitos, proteção de dados e comunicação de incidentes.", "severity": {"partial": "medium", "no": "high"}, "priority": 1}, {"key": "web-filtering", "title": "Implantar filtro de navegação", "description": "Bloquear sites maliciosos e categorias inadequadas, reduzindo infecções, fraudes e uso indevido da internet.", "severity": {"partial": "medium", "no": "high"}, "priority": 2}, {"key": "endpoint-protection", "title": "Implantar proteção corporativa em todos os computadores", "description": "Adotar uma solução de proteção gerenciada e centralizada para todos os equipamentos da empresa.", "severity": {"partial": "high", "no": "critical"}, "priority": 1}, {"key": "endpoint-monitoring", "title": "Monitorar atualização e funcionamento da proteção", "description": "Acompanhar continuamente atualizações, alertas, detecções e equipamentos que estejam sem proteção ativa.", "severity": {"partial": "medium", "no": "high"}, "priority": 1}, {"key": "email-security", "title": "Reforçar a proteção do e-mail corporativo", "description": "Validar antispam, proteção contra phishing, autenticação das contas e possibilidade de backup das caixas de e-mail.", "severity": {"partial": "medium", "no": "high"}, "priority": 1}, {"key": "removable-media", "title": "Controlar dispositivos removíveis", "description": "Definir regras para pendrives e HDs externos, restringindo cópias não autorizadas e mídias desconhecidas.", "severity": {"partial": "low", "no": "medium"}, "priority": 3}, {"key": "software-installation", "title": "Restringir a instalação de programas", "description": "Permitir instalações somente por pessoas autorizadas e manter uma lista de aplicativos aprovados.", "severity": {"partial": "medium", "no": "high"}, "priority": 2}, {"key": "internet-redundancy", "title": "Avaliar redundância de conexão", "description": "Analisar a necessidade de um segundo link de internet para reduzir paradas da operação.", "severity": {"partial": "low", "no": "medium"}, "priority": 3}, {"key": "internet-failover", "title": "Automatizar a troca entre links de internet", "description": "Configurar failover automático para que a conexão reserva assuma quando o link principal falhar.", "severity": {"partial": "low", "no": "medium"}, "priority": 3}, {"key": "backup-coverage", "title": "Garantir backup dos dados críticos", "description": "Mapear os dados importantes e assegurar cópias automáticas, monitoradas e com retenção adequada.", "severity": {"partial": "high", "no": "critical"}, "priority": 1}, {"key": "offsite-backup", "title": "Manter uma cópia de backup fora do ambiente principal", "description": "Armazenar ao menos uma cópia isolada ou em nuvem para proteger contra falhas locais e ataques.", "severity": {"partial": "high", "no": "critical"}, "priority": 1}, {"key": "restore-testing", "title": "Testar a restauração dos backups", "description": "Executar testes periódicos para confirmar que os arquivos podem ser recuperados íntegros e dentro do prazo necessário.", "severity": {"partial": "high", "no": "critical"}, "priority": 1}, {"key": "continuity-plan", "title": "Criar um plano básico de continuidade", "description": "Documentar responsáveis, contatos, prioridades e procedimentos para falhas de rede, servidores ou equipamentos.", "severity": {"partial": "medium", "no": "high"}, "priority": 2}, {"key": "activity-monitoring", "title": "Implantar visibilidade sobre o uso da internet", "description": "Registrar e revisar atividades de navegação de forma compatível com as políticas internas e a privacidade.", "severity": {"partial": "low", "no": "medium"}, "priority": 3}, {"key": "file-auditing", "title": "Habilitar auditoria de arquivos", "description": "Registrar acessos, alterações e exclusões em arquivos importantes para facilitar investigação e recuperação.", "severity": {"partial": "medium", "no": "high"}, "priority": 2}, {"key": "network-segmentation", "title": "Separar a rede de visitantes da rede corporativa", "description": "Criar redes distintas para visitantes, colaboradores e equipamentos críticos, reduzindo o risco de acesso indevido.", "severity": {"partial": "high", "no": "high"}, "priority": 1}]};
+const STORAGE_KEY='stmgo-diagnostico-passo-4-draft';
+const HISTORY_KEY='stmgo-diagnostico-passo-4-history';
+const emptyState=()=>({sectionIndex:0,answers:{},client:{},updatedAt:null});
+let state=emptyState();
+function saveState(){state.updatedAt=new Date().toISOString();localStorage.setItem(STORAGE_KEY,JSON.stringify(state));updateContinueButton();}
+function loadState(){try{const saved=JSON.parse(localStorage.getItem(STORAGE_KEY)||'null');if(saved&&saved.answers&&saved.client)state={...emptyState(),...saved};}catch(e){console.warn('Não foi possível ler o diagnóstico salvo.',e);}}
+function clearState(){localStorage.removeItem(STORAGE_KEY);state=emptyState();updateContinueButton();}
+function hasSavedProgress(){return Object.keys(state.answers||{}).length>0||Object.values(state.client||{}).some(Boolean);}
+function updateContinueButton(){const btn=document.getElementById('continueBtn');if(!btn)return;btn.classList.toggle('hidden',!hasSavedProgress());if(hasSavedProgress()&&state.updatedAt){const d=new Date(state.updatedAt);btn.textContent='Continuar diagnóstico salvo';document.getElementById('importStatus').textContent='Último salvamento: '+d.toLocaleString('pt-BR');}}
+const screens=['home','questions','client','review','history','result'];
+const show=name=>screens.forEach(s=>document.getElementById('screen-'+s).classList.toggle('hidden',s!==name));
+const answerScore=id=>CONFIG.answerOptions.find(o=>o.id===id)?.score ?? null;
+
+
+function getHistory(){try{return JSON.parse(localStorage.getItem(HISTORY_KEY)||'[]');}catch(e){return [];}}
+function setHistory(items){localStorage.setItem(HISTORY_KEY,JSON.stringify(items));}
+function makeId(){return 'diag-'+Date.now()+'-'+Math.random().toString(16).slice(2,8);}
+function saveCompletedDiagnostic(result){
+ const history=getHistory();
+ if(!state.recordId)state.recordId=makeId();
+ const record={id:state.recordId,completedAt:new Date().toISOString(),client:JSON.parse(JSON.stringify(state.client)),answers:JSON.parse(JSON.stringify(state.answers)),result};
+ const index=history.findIndex(x=>x.id===record.id);
+ if(index>=0)history[index]=record;else history.unshift(record);
+ setHistory(history.slice(0,50));state.lastResult=result;saveState();
+}
+function formatDate(value){return new Date(value).toLocaleString('pt-BR');}
+function renderHistory(){
+ const list=document.getElementById('historyList');const history=getHistory();
+ if(!history.length){list.innerHTML='<div class="empty-state">Nenhum diagnóstico concluído neste navegador.</div>';return;}
+ list.innerHTML=history.map(r=>`<div class="history-item"><div><div class="history-title">${escapeHtml(r.client.companyName||'Cliente')}</div><div class="history-meta">${formatDate(r.completedAt)} · ${escapeHtml(r.client.contactName||'Sem contato')} · ${escapeHtml(r.result.level.name)}</div></div><div><div class="history-score">${r.result.global}%</div><div class="history-actions"><button class="btn btn-secondary btn-small" data-open="${r.id}">Abrir</button><button class="btn btn-secondary btn-small" data-delete="${r.id}">Excluir</button></div></div></div>`).join('');
+ list.querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>openHistoryRecord(b.dataset.open));
+ list.querySelectorAll('[data-delete]').forEach(b=>b.onclick=()=>deleteHistoryRecord(b.dataset.delete));
+}
+function escapeHtml(value){return String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function openHistoryRecord(id){const r=getHistory().find(x=>x.id===id);if(!r)return;state={...emptyState(),recordId:r.id,client:r.client,answers:r.answers,lastResult:r.result};saveState();renderStoredResult(r);show('result');window.scrollTo(0,0);}
+function deleteHistoryRecord(id){if(!confirm('Excluir este diagnóstico do histórico?'))return;setHistory(getHistory().filter(x=>x.id!==id));renderHistory();}
+function renderStoredResult(record){
+ const result=record.result;document.getElementById('resultCompany').textContent=record.client.companyName||'Cliente';document.getElementById('resultMeta').textContent=`Concluído em ${formatDate(record.completedAt)} · Contato: ${record.client.contactName||'-'}`;document.getElementById('globalScore').textContent=result.global+'%';document.getElementById('maturityLevel').textContent=result.level.name;document.getElementById('maturityDescription').textContent=result.level.description;
+ document.getElementById('areaScores').innerHTML=result.scores.map(s=>`<div class="score-card"><span>${s.name}</span><strong>${s.score}%</strong></div>`).join('');
+ document.getElementById('recommendations').innerHTML=result.recommendations.length?result.recommendations.map((r,i)=>`<div class="rec"><small>Prioridade ${i+1}</small><h3>${r.title}</h3><p>${r.description}</p></div>`).join(''):'<p class="lead">Nenhuma recomendação crítica foi gerada.</p>';
+}
+function downloadCurrentJson(){const payload={exportedAt:new Date().toISOString(),diagnostic:state};const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`diagnostico-${(state.client.companyName||'cliente').toLowerCase().replace(/[^a-z0-9]+/g,'-')}.json`;a.click();setTimeout(()=>URL.revokeObjectURL(url),500);}
+
+function renderSection(){
+ const section=CONFIG.sections[state.sectionIndex];
+ document.getElementById('stepLabel').textContent=`Etapa ${state.sectionIndex+1} de 6`;
+ document.getElementById('sectionTitle').textContent=section.name;
+ document.getElementById('sectionDescription').textContent=section.description;
+ document.getElementById('progressBar').style.width=`${((state.sectionIndex+1)/6)*100}%`;
+ const c=document.getElementById('questionsContainer');c.innerHTML='';
+ section.questions.forEach(q=>{
+   const current=state.answers[q.id]||{value:null,observation:''};
+   const el=document.createElement('div');el.className='question';
+   el.innerHTML=`<div class="question-title">${q.order}. ${q.text}</div><div class="options">${CONFIG.answerOptions.map(o=>`<button type="button" class="option ${current.value===o.id?'selected':''}" data-q="${q.id}" data-v="${o.id}">${o.label}</button>`).join('')}</div><textarea data-obs="${q.id}" placeholder="Observação opcional">${current.observation||''}</textarea>`;
+   c.appendChild(el);
+ });
+ c.querySelectorAll('[data-q]').forEach(b=>b.onclick=()=>{state.answers[b.dataset.q]={...(state.answers[b.dataset.q]||{}),value:b.dataset.v};saveState();renderSection();});
+ c.querySelectorAll('[data-obs]').forEach(t=>t.oninput=()=>{state.answers[t.dataset.obs]={...(state.answers[t.dataset.obs]||{}),observation:t.value};saveState();});
+ document.getElementById('prevBtn').style.visibility=state.sectionIndex===0?'hidden':'visible';
+}
+function sectionMissing(section){return section.questions.filter(q=>!state.answers[q.id]?.value);}
+function saveClient(){['companyName','contactName','contactEmail','contactPhone','employeeCount','segment','clientNotes'].forEach(id=>state.client[id]=document.getElementById(id).value.trim());saveState();}
+function fillClientForm(){['companyName','contactName','contactEmail','contactPhone','employeeCount','segment','clientNotes'].forEach(id=>{document.getElementById(id).value=state.client[id]||'';});}
+function renderReview(){
+ saveClient(); let answered=0,unknown=0,total=0,html=`<div class="review-section"><h3>${state.client.companyName||'Empresa não informada'}</h3><div class="review-line"><span>Contato</span><strong>${state.client.contactName||'-'}</strong></div><div class="review-line"><span>E-mail</span><strong>${state.client.contactEmail||'-'}</strong></div></div>`;
+ CONFIG.sections.forEach(s=>{let a=s.questions.filter(q=>state.answers[q.id]?.value).length;let u=s.questions.filter(q=>state.answers[q.id]?.value==='unknown').length;answered+=a;unknown+=u;total+=s.questions.length;html+=`<div class="review-section"><div class="review-line"><strong>${s.name}</strong><span>${a} de ${s.questions.length} respondidas</span></div></div>`;});
+ document.getElementById('reviewContent').innerHTML=html;
+ const w=document.getElementById('reviewWarning');const msgs=[];if(answered<total)msgs.push(`${total-answered} pergunta(s) ainda não respondida(s).`);if(unknown)msgs.push(`${unknown} resposta(s) marcada(s) como “Não sei responder” ficarão pendentes.`);w.textContent=msgs.join(' ');w.classList.toggle('hidden',!msgs.length);
+}
+function calcSection(section){const vals=section.questions.map(q=>answerScore(state.answers[q.id]?.value)).filter(v=>v!==null);return vals.length?Math.round(vals.reduce((a,b)=>a+b,0)/vals.length):0;}
+function generateResult(){
+ const scores=CONFIG.sections.map(s=>({id:s.id,name:s.name,score:calcSection(s)}));const global=Math.round(scores.reduce((a,b)=>a+b.score,0)/scores.length);const level=CONFIG.maturityLevels.find(l=>global>=l.min&&global<=l.max)||CONFIG.maturityLevels[0];
+ const byKey={};CONFIG.sections.forEach(s=>s.questions.forEach(q=>{const v=state.answers[q.id]?.value;if(v==='no'||v==='partial'){const r=CONFIG.recommendations.find(x=>x.key===q.recommendationKey);if(r&&!byKey[r.key])byKey[r.key]={...r,answer:v};}}));
+ const recommendations=Object.values(byKey).sort((a,b)=>a.priority-b.priority).slice(0,8);
+ const result={global,level,scores,recommendations};saveCompletedDiagnostic(result);
+ renderStoredResult({client:state.client,completedAt:new Date().toISOString(),result});show('result');window.scrollTo(0,0);
+}
+function startNewDiagnostic(){if(hasSavedProgress()&&!confirm('Existe um diagnóstico salvo. Deseja apagá-lo e iniciar um novo?'))return;clearState();show('questions');renderSection();}
+function continueSavedDiagnostic(){loadState();fillClientForm();if(Object.keys(state.answers).length>=CONFIG.sections.reduce((n,s)=>n+s.questions.length,0)&&state.client.companyName){renderReview();show('review');}else{show('questions');renderSection();}window.scrollTo(0,0);}
+function normalizeText(value){return String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();}
+function parseCSV(text){const rows=[];let row=[],field='',quoted=false;for(let i=0;i<text.length;i++){const ch=text[i];if(ch==='"'){if(quoted&&text[i+1]==='"'){field+='"';i++;}else quoted=!quoted;}else if(ch===','&&!quoted){row.push(field);field='';}else if((ch==='\n'||ch==='\r')&&!quoted){if(ch==='\r'&&text[i+1]==='\n')i++;row.push(field);rows.push(row);row=[];field='';}else field+=ch;}if(field||row.length){row.push(field);rows.push(row);}return rows;}
+function findQuestionByText(text){const n=normalizeText(text);for(const section of CONFIG.sections){for(const q of section.questions){const values=[q.text,...(q.aliases||[])];if(values.some(v=>normalizeText(v)===n))return q;}}return null;}
+function importRows(rows){clearState();let matched=0;for(const row of rows){const first=String(row[0]||'').trim();const nf=normalizeText(first);if(nf==='nome da empresa')state.client.companyName=String(row[1]||'').trim();else if(nf==='contato')state.client.contactName=String(row[1]||'').trim();else if(nf.includes('numero colaboradores'))state.client.employeeCount=String(row[1]||'').trim();const q=findQuestionByText(first);if(q){let value=null;if(Number(String(row[1]||'').replace(',','.'))===100)value='yes';else if(Number(String(row[2]||'').replace(',','.'))===50)value='partial';else if(Number(String(row[3]||'').replace(',','.'))===0&&String(row[3]||'').trim()!=='')value='no';else{const result=Number(String(row[4]||'').replace(',','.'));if(result===100)value='yes';else if(result===50)value='partial';else if(result===0)value='no';}
+if(value){state.answers[q.id]={value,observation:String(row[5]||'').trim()};matched++;}}}
+state.sectionIndex=0;saveState();fillClientForm();return matched;}
+async function handleCSV(file){const status=document.getElementById('importStatus');try{status.textContent='Lendo a planilha...';const buffer=await file.arrayBuffer();let content=new TextDecoder('utf-8',{fatal:false}).decode(buffer);if((content.match(/�/g)||[]).length>2)content=new TextDecoder('windows-1252').decode(buffer);const rows=parseCSV(content);const matched=importRows(rows);if(!matched)throw new Error('Nenhuma das 21 perguntas foi reconhecida. Use o modelo atual da planilha.');status.textContent=`Importação concluída: ${matched} pergunta(s) reconhecida(s).`;renderReview();show('review');window.scrollTo(0,0);}catch(e){console.error(e);status.textContent='Erro: '+e.message;alert('Não foi possível importar a planilha. '+e.message);}}
+document.getElementById('startBtn').onclick=startNewDiagnostic;
+document.getElementById('continueBtn').onclick=continueSavedDiagnostic;
+document.getElementById('historyBtn').onclick=()=>{renderHistory();show('history');window.scrollTo(0,0);};
+document.getElementById('historyBackBtn').onclick=()=>{show('home');updateContinueButton();};
+document.getElementById('importBtn').onclick=()=>document.getElementById('csvInput').click();
+document.getElementById('csvInput').onchange=e=>{const file=e.target.files[0];if(file)handleCSV(file);e.target.value='';};
+document.getElementById('prevBtn').onclick=()=>{if(state.sectionIndex>0){state.sectionIndex--;renderSection();window.scrollTo(0,0);}};
+document.getElementById('nextBtn').onclick=()=>{const s=CONFIG.sections[state.sectionIndex];const missing=sectionMissing(s);if(missing.length&&!confirm(`Há ${missing.length} pergunta(s) sem resposta. Deseja continuar mesmo assim?`))return;if(state.sectionIndex<CONFIG.sections.length-1){state.sectionIndex++;renderSection();window.scrollTo(0,0);}else{show('client');window.scrollTo(0,0);}};
+document.getElementById('clientBackBtn').onclick=()=>{saveClient();show('questions');state.sectionIndex=CONFIG.sections.length-1;saveState();renderSection();};
+document.getElementById('reviewBtn').onclick=()=>{saveClient();if(!state.client.companyName||!state.client.contactName){alert('Preencha o nome da empresa e o nome do contato.');return;}renderReview();show('review');window.scrollTo(0,0);};
+document.getElementById('reviewBackBtn').onclick=()=>{fillClientForm();show('client');};document.getElementById('generateBtn').onclick=generateResult;
+document.getElementById('resultHomeBtn').onclick=()=>{show('home');updateContinueButton();};
+document.getElementById('downloadJsonBtn').onclick=downloadCurrentJson;
+document.getElementById('restartBtn').onclick=()=>{if(confirm('Deseja iniciar um novo diagnóstico? O resultado atual continuará salvo no histórico.')){clearState();show('questions');renderSection();}};
+loadState();updateContinueButton();fillClientForm();
+</script>
+</body></html>

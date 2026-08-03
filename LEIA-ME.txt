@@ -1,0 +1,13 @@
+PASSO 4 — HISTÓRICO E EXPORTAÇÃO
+
+1. Abra index.html com dois cliques.
+2. Conclua um diagnóstico.
+3. O resultado será salvo automaticamente no Histórico de diagnósticos.
+4. Volte ao início e abra o histórico para consultar, reabrir ou excluir registros.
+5. Na tela do resultado, use Exportar / imprimir PDF para salvar pelo navegador.
+6. O botão Baixar dados gera uma cópia JSON do diagnóstico.
+
+IMPORTANTE
+- Os dados continuam somente neste navegador e neste computador.
+- Limpar os dados do navegador apaga o histórico.
+- Esta ainda não é a versão com banco de dados e login.

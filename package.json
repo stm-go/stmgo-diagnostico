@@ -1,0 +1,10 @@
+{
+  "name": "stmgo-diagnostico-seguranca",
+  "private": true,
+  "version": "0.5.0",
+  "type": "module",
+  "scripts": {
+    "dev": "node server.mjs",
+    "start": "node server.mjs"
+  }
+}
