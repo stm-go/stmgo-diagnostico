@@ -76,71 +76,136 @@ function renderReview(){
 }
 function calcSection(section){const vals=section.questions.map(q=>answerScore(state.answers[q.id]?.value)).filter(v=>v!==null);return vals.length?Math.round(vals.reduce((a,b)=>a+b,0)/vals.length):0;}
 async function generateResult() {
- const scores=CONFIG.sections.map(s=>({id:s.id,name:s.name,score:calcSection(s)}));const global=Math.round(scores.reduce((a,b)=>a+b.score,0)/scores.length);const level=CONFIG.maturityLevels.find(l=>global>=l.min&&global<=l.max)||CONFIG.maturityLevels[0];
- const byKey={};CONFIG.sections.forEach(s=>s.questions.forEach(q=>{const v=state.answers[q.id]?.value;if(v==='no'||v==='partial'){const r=CONFIG.recommendations.find(x=>x.key===q.recommendationKey);if(r&&!byKey[r.key])byKey[r.key]={...r,answer:v};}}));
- const recommendations=Object.values(byKey).sort((a,b)=>a.priority-b.priority).slice(0,8);
- const result = {
-  global,
-  level,
-  scores,
-  recommendations,
-};
+  console.log("FUNÇÃO generateResult INICIADA");
 
-const status =
-  document.getElementById("supabase-status");
+  const scores = CONFIG.sections.map((section) => ({
+    id: section.id,
+    name: section.name,
+    score: calcSection(section),
+  }));
 
-if (status) {
-  status.textContent =
-    "Salvando diagnóstico no Supabase...";
+  const global = Math.round(
+    scores.reduce(
+      (total, item) => total + item.score,
+      0
+    ) / scores.length
+  );
 
-  status.style.color = "#475569";
-}
+  const level =
+    CONFIG.maturityLevels.find(
+      (item) =>
+        global >= item.min &&
+        global <= item.max
+    ) || CONFIG.maturityLevels[0];
 
-try {
-  const savedDiagnostic =
-    await salvarDiagnostico({
+  const byKey = {};
+
+  CONFIG.sections.forEach((section) => {
+    section.questions.forEach((question) => {
+      const value =
+        state.answers[question.id]?.value;
+
+      if (
+        value === "no" ||
+        value === "partial"
+      ) {
+        const recommendation =
+          CONFIG.recommendations.find(
+            (item) =>
+              item.key ===
+              question.recommendationKey
+          );
+
+        if (
+          recommendation &&
+          !byKey[recommendation.key]
+        ) {
+          byKey[recommendation.key] = {
+            ...recommendation,
+            answer: value,
+          };
+        }
+      }
+    });
+  });
+
+  const recommendations =
+    Object.values(byKey)
+      .sort(
+        (first, second) =>
+          first.priority - second.priority
+      )
+      .slice(0, 8);
+
+  const result = {
+    global,
+    level,
+    scores,
+    recommendations,
+  };
+
+  const status =
+    document.getElementById(
+      "supabase-status"
+    );
+
+  if (status) {
+    status.textContent =
+      "Salvando diagnóstico no Supabase...";
+
+    status.style.color = "#475569";
+  }
+
+  try {
+    console.log("VOU SALVAR NO SUPABASE", {
       client: state.client,
       answers: state.answers,
       result,
     });
 
-  if (status) {
-    status.textContent =
-      "Diagnóstico salvo no Supabase.";
+    const savedDiagnostic =
+      await salvarDiagnostico({
+        client: state.client,
+        answers: state.answers,
+        result,
+      });
 
-    status.style.color = "#15803d";
+    if (status) {
+      status.textContent =
+        "Diagnóstico salvo no Supabase.";
+
+      status.style.color = "#15803d";
+    }
+  } catch (error) {
+    console.error(
+      "Erro ao salvar diagnóstico:",
+      error
+    );
+
+    if (status) {
+      status.textContent =
+        "Resultado gerado, mas não salvo.";
+
+      status.style.color = "#b91c1c";
+    }
+
+    alert(
+      "O resultado foi gerado, mas não foi salvo no Supabase.\n\n" +
+        error.message
+    );
   }
 
-  console.log(
-    "Diagnóstico salvo:",
-    savedDiagnostic
-  );
-} catch (error) {
-  console.error(
-    "Erro ao salvar no Supabase:",
-    error
-  );
+  saveCompletedDiagnostic(result);
 
-  if (status) {
-    status.textContent =
-      "Resultado gerado, mas não salvo no Supabase.";
+  renderStoredResult({
+    client: state.client,
+    completedAt:
+      new Date().toISOString(),
+    result,
+  });
 
-    status.style.color = "#b91c1c";
-  }
-
-  alert(
-    "O resultado foi gerado, mas ocorreu um erro ao salvar no banco:\n\n" +
-      error.message
-  );
-}
-
-saveCompletedDiagnostic(result);
-
-renderStoredResult({
-  client: state.client,
-  completedAt: new Date().toISOString(),
-  result,
-});
+  show("result");
+  window.scrollTo(0, 0);
 }
 function startNewDiagnostic(){if(hasSavedProgress()&&!confirm('Existe um diagnóstico salvo. Deseja apagá-lo e iniciar um novo?'))return;clearState();show('questions');renderSection();}
 function continueSavedDiagnostic(){loadState();fillClientForm();if(Object.keys(state.answers).length>=CONFIG.sections.reduce((n,s)=>n+s.questions.length,0)&&state.client.companyName){renderReview();show('review');}else{show('questions');renderSection();}window.scrollTo(0,0);}
@@ -161,7 +226,12 @@ document.getElementById('prevBtn').onclick=()=>{if(state.sectionIndex>0){state.s
 document.getElementById('nextBtn').onclick=()=>{const s=CONFIG.sections[state.sectionIndex];const missing=sectionMissing(s);if(missing.length&&!confirm(`Há ${missing.length} pergunta(s) sem resposta. Deseja continuar mesmo assim?`))return;if(state.sectionIndex<CONFIG.sections.length-1){state.sectionIndex++;renderSection();window.scrollTo(0,0);}else{show('client');window.scrollTo(0,0);}};
 document.getElementById('clientBackBtn').onclick=()=>{saveClient();show('questions');state.sectionIndex=CONFIG.sections.length-1;saveState();renderSection();};
 document.getElementById('reviewBtn').onclick=()=>{saveClient();if(!state.client.companyName||!state.client.contactName){alert('Preencha o nome da empresa e o nome do contato.');return;}renderReview();show('review');window.scrollTo(0,0);};
-document.getElementById('reviewBackBtn').onclick=()=>{fillClientForm();show('client');};document.getElementById('generateBtn').onclick=generateResult;
+document.getElementById('reviewBackBtn').onclick=()=>{fillClientForm();show('client');};
+document.getElementById("generateBtn").onclick = async () => {
+  console.log("BOTÃO GERAR FOI CLICADO");
+
+  await generateResult();
+};
 document.getElementById('resultHomeBtn').onclick=()=>{show('home');updateContinueButton();};
 document.getElementById('downloadJsonBtn').onclick=downloadCurrentJson;
 document.getElementById('restartBtn').onclick=()=>{if(confirm('Deseja iniciar um novo diagnóstico? O resultado atual continuará salvo no histórico.')){clearState();show('questions');renderSection();}};

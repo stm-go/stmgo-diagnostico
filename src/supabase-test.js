@@ -45,4 +45,43 @@ async function testarConexao() {
   }
 }
 
+window.testarSalvamento = async function () {
+  const response = await fetch(
+    `${SUPABASE_URL}/rest/v1/diagnostics`,
+    {
+      method: "POST",
+      headers: {
+        apikey: SUPABASE_KEY,
+        "Content-Type": "application/json",
+        Prefer: "return=representation",
+      },
+      body: JSON.stringify({
+        company_name: "TESTE MANUAL",
+        contact_name: "Isabella",
+        status: "completed",
+        global_score: 50,
+        management_score: 50,
+        control_score: 50,
+        availability_score: 50,
+        traceability_score: 50,
+        maturity_level: "Moderado",
+        answers: {},
+        recommendations: [],
+      }),
+    }
+  );
+
+  const texto = await response.text();
+
+  console.log(
+    "Status do salvamento:",
+    response.status
+  );
+
+  console.log(
+    "Resposta do Supabase:",
+    texto
+  );
+};
+
 testarConexao();

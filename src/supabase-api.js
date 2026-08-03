@@ -15,25 +15,41 @@ export async function salvarDiagnostico({
     ])
   );
 
-  const employeeCount =
-    Number.parseInt(client.employeeCount, 10);
+  const employeeCount = Number.parseInt(
+    client.employeeCount,
+    10
+  );
 
   const diagnostic = {
-    company_name: client.companyName,
-    contact_name: client.contactName || null,
-    contact_email: client.contactEmail || null,
-    contact_phone: client.contactPhone || null,
+    company_name:
+      client.companyName || "Empresa não informada",
+
+    contact_name:
+      client.contactName || null,
+
+    contact_email:
+      client.contactEmail || null,
+
+    contact_phone:
+      client.contactPhone || null,
 
     employee_count: Number.isNaN(employeeCount)
       ? null
       : employeeCount,
 
-    segment: client.segment || null,
+    segment:
+      client.segment || null,
+
     status: "completed",
 
-    global_score: result.global,
-    management_score: scores.gestao ?? 0,
-    control_score: scores.controle ?? 0,
+    global_score:
+      result.global,
+
+    management_score:
+      scores.gestao ?? 0,
+
+    control_score:
+      scores.controle ?? 0,
 
     availability_score:
       scores.disponibilidade ?? 0,
@@ -41,9 +57,13 @@ export async function salvarDiagnostico({
     traceability_score:
       scores.rastreabilidade ?? 0,
 
-    maturity_level: result.level.name,
+    maturity_level:
+      result.level.name,
+
     answers,
-    recommendations: result.recommendations,
+
+    recommendations:
+      result.recommendations,
   };
 
   const response = await fetch(
@@ -51,26 +71,39 @@ export async function salvarDiagnostico({
     {
       method: "POST",
 
-        headers: {
+      headers: {
         apikey: SUPABASE_KEY,
         "Content-Type": "application/json",
         Accept: "application/json",
         Prefer: "return=representation",
-        },
+      },
 
       body: JSON.stringify(diagnostic),
     }
   );
 
-  const responseBody = await response.json();
+  const responseText = await response.text();
+
+  let responseBody = null;
+
+  try {
+    responseBody = responseText
+      ? JSON.parse(responseText)
+      : null;
+  } catch {
+    responseBody = responseText;
+  }
 
   if (!response.ok) {
     throw new Error(
       responseBody?.message ||
         responseBody?.hint ||
+        responseText ||
         "Erro ao salvar diagnóstico."
     );
   }
 
-  return responseBody[0];
+  return Array.isArray(responseBody)
+    ? responseBody[0]
+    : responseBody;
 }
