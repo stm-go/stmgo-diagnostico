@@ -1,10 +1,12 @@
 {
   "name": "stmgo-diagnostico-seguranca",
   "private": true,
-  "version": "0.5.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "node server.mjs",
-    "start": "node server.mjs"
+    "start": "node server.mjs",
+    "test": "node test-core.mjs",
+    "check": "node --check server.mjs && node --check diagnostic-core.mjs && node --check test-core.mjs && node --check src/auth.js && node --check src/main.js && node --check src/supabase-api.js && node --check src/supabase-config.js"
   }
 }
