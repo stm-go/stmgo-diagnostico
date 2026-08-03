@@ -204,4 +204,27 @@ document.getElementById('downloadJsonBtn').onclick=downloadCurrentJson;
 document.getElementById('restartBtn').onclick=()=>{if(confirm('Deseja iniciar um novo diagnóstico? O resultado atual continuará salvo no histórico.')){clearState();show('questions');renderSection();}};
 loadState();updateContinueButton();fillClientForm();
 </script>
-</body></html>
+<div
+  id="supabase-status"
+  style="
+    position: fixed;
+    right: 16px;
+    bottom: 16px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    background: white;
+    box-shadow: 0 4px 18px rgba(0,0,0,.15);
+    font-family: Arial, sans-serif;
+    font-size: 12px;
+    z-index: 9999;
+  "
+>
+  Testando conexão com o Supabase...
+</div>
+
+<script
+  type="module"
+  src="./src/supabase-test.js"
+></script>
+</body>
+</html>
