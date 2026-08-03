@@ -67,6 +67,24 @@ textarea,input,select{width:100%;border:1px solid #d0d5dd;border-radius:10px;pad
         </button>
       </div>
     </div>
+
+    <section id="screen-login" class="hero">
+      <div class="card login-card">
+        <h1>Acesso ao diagnóstico</h1>
+        <p class="lead">Entre com seu e-mail corporativo para acessar o sistema.</p>
+        <form id="loginForm">
+          <div class="login-field">
+            <label for="loginEmail">E-mail</label>
+            <input id="loginEmail" type="email" autocomplete="email" placeholder="nome@stmgo.com.br" required>
+          </div>
+          <div class="login-field">
+            <label for="loginPassword">Senha</label>
+            <input id="loginPassword" type="password" autocomplete="current-password" placeholder="Sua senha" required>
+          </div>
+          <div id="loginError" class="warning hidden" style="text-align:left"></div>
+          <button class="btn btn-primary" id="loginBtn" type="submit" style="width:100%;margin-top:22px">Entrar</button>
+        </form>
+      </div>
     </section>
 
     <section id="screen-home" class="hero hidden">
@@ -170,6 +188,7 @@ textarea,input,select{width:100%;border:1px solid #d0d5dd;border-radius:10px;pad
 
   <div id="supabase-status" style="position:fixed;right:16px;bottom:16px;padding:10px 14px;border-radius:8px;background:white;box-shadow:0 4px 18px rgba(0,0,0,.15);font-family:Arial,sans-serif;font-size:12px;z-index:9999">Aguardando autenticação.</div>
 
+  <script type="module" src="./src/auth.js"></script>
   <script type="module" src="./src/main.js"></script>
 </body>
 </html>

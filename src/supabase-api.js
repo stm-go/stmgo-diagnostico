@@ -298,3 +298,154 @@ export async function excluirDiagnostico(id) {
     ? responseBody[0] || null
     : responseBody;
 }
+
+export async function atualizarDiagnostico({
+  id,
+  client,
+  answers,
+  result,
+}) {
+  const {
+    data: { session },
+    error: sessionError,
+  } = await supabaseClient.auth.getSession();
+
+  if (sessionError) {
+    throw new Error(
+      "Não foi possível verificar a sessão."
+    );
+  }
+
+  if (!session) {
+    throw new Error(
+      "Usuário não autenticado."
+    );
+  }
+
+  if (!id) {
+    throw new Error(
+      "Diagnóstico não identificado."
+    );
+  }
+
+  const scores = Object.fromEntries(
+    result.scores.map((item) => [
+      item.id,
+      item.score,
+    ])
+  );
+
+  const employeeCount = Number.parseInt(
+    client.employeeCount,
+    10
+  );
+
+  const diagnostic = {
+    company_name:
+      client.companyName ||
+      "Empresa não informada",
+
+    contact_name:
+      client.contactName || null,
+
+    contact_email:
+      client.contactEmail || null,
+
+    contact_phone:
+      client.contactPhone || null,
+
+    employee_count:
+      Number.isNaN(employeeCount)
+        ? null
+        : employeeCount,
+
+    segment:
+      client.segment || null,
+
+    global_score:
+      result.global,
+
+    management_score:
+      scores.gestao ?? 0,
+
+    control_score:
+      scores.controle ?? 0,
+
+    availability_score:
+      scores.disponibilidade ?? 0,
+
+    traceability_score:
+      scores.rastreabilidade ?? 0,
+
+    maturity_level:
+      result.level.name,
+
+    answers,
+
+    recommendations:
+      result.recommendations,
+  };
+
+  const url =
+    `${SUPABASE_URL}/rest/v1/diagnostics` +
+    `?id=eq.${encodeURIComponent(id)}` +
+    `&created_by=eq.${encodeURIComponent(session.user.id)}`;
+
+  const response = await fetch(url, {
+    method: "PATCH",
+
+    headers: {
+      apikey: SUPABASE_KEY,
+
+      Authorization:
+        `Bearer ${session.access_token}`,
+
+      "Content-Type":
+        "application/json",
+
+      Accept:
+        "application/json",
+
+      Prefer:
+        "return=representation",
+    },
+
+    body:
+      JSON.stringify(diagnostic),
+  });
+
+  const responseText =
+    await response.text();
+
+  let responseBody = null;
+
+  try {
+    responseBody = responseText
+      ? JSON.parse(responseText)
+      : [];
+  } catch {
+    responseBody = responseText;
+  }
+
+  if (!response.ok) {
+    throw new Error(
+      responseBody?.message ||
+        responseBody?.hint ||
+        responseText ||
+        "Não foi possível atualizar o diagnóstico."
+    );
+  }
+
+  const updated =
+    Array.isArray(responseBody)
+      ? responseBody[0]
+      : responseBody;
+
+  if (!updated) {
+    throw new Error(
+      "O diagnóstico não foi encontrado ou não pertence ao usuário."
+    );
+  }
+
+  return updated;
+}

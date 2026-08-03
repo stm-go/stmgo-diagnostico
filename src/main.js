@@ -2,12 +2,20 @@ import {
   salvarDiagnostico,
   listarDiagnosticos,
   excluirDiagnostico,
+  atualizarDiagnostico,
 } from "./supabase-api.js";
 
 const CONFIG = {"schemaVersion": 1, "id": "stmgo-security-diagnostic-v1", "name": "Diagnóstico de Segurança Digital stmgo", "description": "Questionário inicial baseado no modelo atual da stmgo.", "answerOptions": [{"id": "yes", "label": "Sim", "score": 100, "requiresReview": false}, {"id": "partial", "label": "Parcialmente", "score": 50, "requiresReview": false}, {"id": "no", "label": "Não", "score": 0, "requiresReview": false}, {"id": "unknown", "label": "Não sei responder", "score": null, "requiresReview": true}], "maturityLevels": [{"id": "critical", "name": "Crítico", "min": 0, "max": 20, "description": "A segurança da informação ainda não possui controles mínimos suficientes e demanda ações emergenciais."}, {"id": "initial", "name": "Inicial", "min": 21, "max": 40, "description": "Já existem iniciativas pontuais, porém ainda há pouca padronização, gestão e acompanhamento."}, {"id": "moderate", "name": "Moderado", "min": 41, "max": 60, "description": "A empresa possui alguns processos e ferramentas, mas ainda existem limitações de implementação e controle."}, {"id": "conscious", "name": "Consciente", "min": 61, "max": 80, "description": "Os controles estão mais consolidados, embora ainda existam oportunidades de evolução estratégica."}, {"id": "optimized", "name": "Otimizado", "min": 81, "max": 100, "description": "A segurança é tratada de forma estratégica, com gestão responsável e melhoria contínua."}], "sections": [{"id": "gestao", "name": "Gestão", "order": 1, "description": "Avalia políticas, responsabilidades, licenciamento e conscientização.", "questions": [{"id": "GES-01", "order": 1, "text": "Tem um time de TI ou parceiro cuidando da tecnologia da empresa?", "required": true, "weight": 1, "recommendationKey": "it-responsibility", "aliases": ["Tem um time de TI ou parceiro cuidando da tecnologia da empresa?"]}, {"id": "GES-02", "order": 2, "text": "Tem regras escritas sobre como são protegidos os dados da empresa?", "required": true, "weight": 1, "recommendationKey": "security-policies", "aliases": ["Tem regras escritas sobre como é protegido os dados da empresa?"]}, {"id": "GES-03", "order": 3, "text": "Tem regras para o uso da internet pelos colaboradores?", "required": true, "weight": 1, "recommendationKey": "acceptable-use", "aliases": ["Tem regras para o uso da internet pelos colaboradores?"]}, {"id": "GES-04", "order": 4, "text": "A maioria dos programas que a empresa usa são legalizados? Ex.: Windows e Office.", "required": true, "weight": 1, "recommendationKey": "software-licensing", "aliases": ["A maioria dos programas que a empresa usa são legalizados? Ex: Windows, Office"]}, {"id": "GES-05", "order": 5, "text": "Capacita os colaboradores sobre como se proteger online?", "required": true, "weight": 1, "recommendationKey": "security-awareness", "aliases": ["Capacita os colaboradores sobre como se proteger online?"]}]}, {"id": "controle", "name": "Controle", "order": 2, "description": "Avalia proteção de endpoints, navegação, e-mail e instalação de programas.", "questions": [{"id": "CON-01", "order": 1, "text": "Bloqueia sites perigosos ou inadequados para o trabalho?", "required": true, "weight": 1, "recommendationKey": "web-filtering", "aliases": ["Bloqueia sites perigosos ou inadequados para o trabalho?"]}, {"id": "CON-02", "order": 2, "text": "Possui antivírus corporativo com controle centralizado de todos os equipamentos?", "required": true, "weight": 1, "recommendationKey": "endpoint-protection", "aliases": ["Possui anti-vírus corporativo com controle centralizado de todos os equipamentos?"]}, {"id": "CON-03", "order": 3, "text": "Tem antivírus em todos os computadores?", "required": true, "weight": 1, "recommendationKey": "endpoint-protection", "aliases": ["Tem antivírus em todos os computadores?"]}, {"id": "CON-04", "order": 4, "text": "O antivírus é atualizado e checado continuamente, e não apenas instalado?", "required": true, "weight": 1, "recommendationKey": "endpoint-monitoring", "aliases": ["O antivírus é atualizado e checado o tempo todo, não só instalado?"]}, {"id": "CON-05", "order": 5, "text": "Tem filtro antispam para bloquear e-mails falsos?", "required": true, "weight": 1, "recommendationKey": "email-security", "aliases": ["Tem filtro anti-spam para bloquear e-mails falsos?"]}, {"id": "CON-06", "order": 6, "text": "Controla dispositivos externos, como pendrive e HD externo, para evitar vazamento de dados?", "required": true, "weight": 1, "recommendationKey": "removable-media", "aliases": ["Controla dispositivos externos (pendrive, hd externo) para evitar vazamento de dados?"]}, {"id": "CON-07", "order": 7, "text": "Tem regras para instalar programas nos computadores?", "required": true, "weight": 1, "recommendationKey": "software-installation", "aliases": ["Tem regras para instalar programas nos computadores?"]}]}, {"id": "disponibilidade", "name": "Disponibilidade", "order": 3, "description": "Avalia redundância de internet, backup e continuidade da operação.", "questions": [{"id": "DIS-01", "order": 1, "text": "Possui mais de um link de internet?", "required": true, "weight": 1, "recommendationKey": "internet-redundancy", "aliases": ["Possui mais de um link de internet?"]}, {"id": "DIS-02", "order": 2, "text": "Se um link de internet cair, o outro entra automaticamente?", "required": true, "weight": 1, "recommendationKey": "internet-failover", "aliases": ["Se um link de internet \"cai\" o outro entra automaticamente?"]}, {"id": "DIS-03", "order": 3, "text": "Tem backup dos dados da empresa?", "required": true, "weight": 1, "recommendationKey": "backup-coverage", "aliases": ["Tem backup dos dados da empresa?"]}, {"id": "DIS-04", "order": 4, "text": "Guarda cópias de backup fora da empresa?", "required": true, "weight": 1, "recommendationKey": "offsite-backup", "aliases": ["Guarda cópias de backup fora da empresa?"]}, {"id": "DIS-05", "order": 5, "text": "Testa os backups com frequência para verificar se funcionam?", "required": true, "weight": 1, "recommendationKey": "restore-testing", "aliases": ["Testa os backups com frequência para ver se funcionam?"]}, {"id": "DIS-06", "order": 6, "text": "Tem um plano caso a rede ou os equipamentos parem?", "required": true, "weight": 1, "recommendationKey": "continuity-plan", "aliases": ["Tem um plano caso a rede ou equipamentos pararem?"]}]}, {"id": "rastreabilidade", "name": "Rastreabilidade", "order": 4, "description": "Avalia registros de atividade, auditoria e separação da rede.", "questions": [{"id": "RAS-01", "order": 1, "text": "Sabe o que seus colaboradores acessam na internet no dia a dia?", "required": true, "weight": 1, "recommendationKey": "activity-monitoring", "aliases": ["Sabe o que seus colaboradores acessam na internet no dia a dia?"]}, {"id": "RAS-02", "order": 2, "text": "Se um arquivo é apagado, sabe quem fez isso?", "required": true, "weight": 1, "recommendationKey": "file-auditing", "aliases": ["Se um arquivo é apagado, sabe quem fez isso?"]}, {"id": "RAS-03", "order": 3, "text": "A internet de visitantes é separada da rede que os colaboradores usam?", "required": true, "weight": 1, "recommendationKey": "network-segmentation", "aliases": ["A internet de visitantes é separada da rede que so colaboradores usam?"]}]}], "recommendations": [{"key": "it-responsibility", "title": "Definir responsabilidade pela gestão de TI", "description": "Formalizar quem cuida da tecnologia, dos fornecedores, das atualizações e dos controles de segurança.", "severity": {"partial": "medium", "no": "high"}, "priority": 2}, {"key": "security-policies", "title": "Formalizar políticas de proteção de dados", "description": "Criar regras simples e documentadas para acesso, armazenamento, compartilhamento e descarte de informações.", "severity": {"partial": "medium", "no": "high"}, "priority": 2}, {"key": "acceptable-use", "title": "Criar política de uso aceitável da internet", "description": "Definir orientações claras sobre navegação, downloads, uso de contas corporativas e acesso a conteúdos inadequados.", "severity": {"partial": "low", "no": "medium"}, "priority": 3}, {"key": "software-licensing", "title": "Regularizar e inventariar os softwares utilizados", "description": "Manter licenças válidas e um inventário atualizado para reduzir riscos legais, operacionais e de segurança.", "severity": {"partial": "medium", "no": "high"}, "priority": 2}, {"key": "security-awareness", "title": "Implantar conscientização periódica em segurança", "description": "Treinar os colaboradores sobre golpes, senhas, e-mails suspeitos, proteção de dados e comunicação de incidentes.", "severity": {"partial": "medium", "no": "high"}, "priority": 1}, {"key": "web-filtering", "title": "Implantar filtro de navegação", "description": "Bloquear sites maliciosos e categorias inadequadas, reduzindo infecções, fraudes e uso indevido da internet.", "severity": {"partial": "medium", "no": "high"}, "priority": 2}, {"key": "endpoint-protection", "title": "Implantar proteção corporativa em todos os computadores", "description": "Adotar uma solução de proteção gerenciada e centralizada para todos os equipamentos da empresa.", "severity": {"partial": "high", "no": "critical"}, "priority": 1}, {"key": "endpoint-monitoring", "title": "Monitorar atualização e funcionamento da proteção", "description": "Acompanhar continuamente atualizações, alertas, detecções e equipamentos que estejam sem proteção ativa.", "severity": {"partial": "medium", "no": "high"}, "priority": 1}, {"key": "email-security", "title": "Reforçar a proteção do e-mail corporativo", "description": "Validar antispam, proteção contra phishing, autenticação das contas e possibilidade de backup das caixas de e-mail.", "severity": {"partial": "medium", "no": "high"}, "priority": 1}, {"key": "removable-media", "title": "Controlar dispositivos removíveis", "description": "Definir regras para pendrives e HDs externos, restringindo cópias não autorizadas e mídias desconhecidas.", "severity": {"partial": "low", "no": "medium"}, "priority": 3}, {"key": "software-installation", "title": "Restringir a instalação de programas", "description": "Permitir instalações somente por pessoas autorizadas e manter uma lista de aplicativos aprovados.", "severity": {"partial": "medium", "no": "high"}, "priority": 2}, {"key": "internet-redundancy", "title": "Avaliar redundância de conexão", "description": "Analisar a necessidade de um segundo link de internet para reduzir paradas da operação.", "severity": {"partial": "low", "no": "medium"}, "priority": 3}, {"key": "internet-failover", "title": "Automatizar a troca entre links de internet", "description": "Configurar failover automático para que a conexão reserva assuma quando o link principal falhar.", "severity": {"partial": "low", "no": "medium"}, "priority": 3}, {"key": "backup-coverage", "title": "Garantir backup dos dados críticos", "description": "Mapear os dados importantes e assegurar cópias automáticas, monitoradas e com retenção adequada.", "severity": {"partial": "high", "no": "critical"}, "priority": 1}, {"key": "offsite-backup", "title": "Manter uma cópia de backup fora do ambiente principal", "description": "Armazenar ao menos uma cópia isolada ou em nuvem para proteger contra falhas locais e ataques.", "severity": {"partial": "high", "no": "critical"}, "priority": 1}, {"key": "restore-testing", "title": "Testar a restauração dos backups", "description": "Executar testes periódicos para confirmar que os arquivos podem ser recuperados íntegros e dentro do prazo necessário.", "severity": {"partial": "high", "no": "critical"}, "priority": 1}, {"key": "continuity-plan", "title": "Criar um plano básico de continuidade", "description": "Documentar responsáveis, contatos, prioridades e procedimentos para falhas de rede, servidores ou equipamentos.", "severity": {"partial": "medium", "no": "high"}, "priority": 2}, {"key": "activity-monitoring", "title": "Implantar visibilidade sobre o uso da internet", "description": "Registrar e revisar atividades de navegação de forma compatível com as políticas internas e a privacidade.", "severity": {"partial": "low", "no": "medium"}, "priority": 3}, {"key": "file-auditing", "title": "Habilitar auditoria de arquivos", "description": "Registrar acessos, alterações e exclusões em arquivos importantes para facilitar investigação e recuperação.", "severity": {"partial": "medium", "no": "high"}, "priority": 2}, {"key": "network-segmentation", "title": "Separar a rede de visitantes da rede corporativa", "description": "Criar redes distintas para visitantes, colaboradores e equipamentos críticos, reduzindo o risco de acesso indevido.", "severity": {"partial": "high", "no": "high"}, "priority": 1}]};
 const STORAGE_KEY='stmgo-diagnostico-passo-4-draft';
 const HISTORY_KEY='stmgo-diagnostico-passo-4-history';
-const emptyState=()=>({sectionIndex:0,answers:{},client:{},updatedAt:null});
+const emptyState = () => ({
+  sectionIndex: 0,
+  answers: {},
+  client: {},
+  updatedAt: null,
+  remoteRecordId: null,
+  recordId: null,
+});
 let state=emptyState();
 function saveState(){state.updatedAt=new Date().toISOString();localStorage.setItem(STORAGE_KEY,JSON.stringify(state));updateContinueButton();}
 function loadState(){try{const saved=JSON.parse(localStorage.getItem(STORAGE_KEY)||'null');if(saved&&saved.answers&&saved.client)state={...emptyState(),...saved};}catch(e){console.warn('Não foi possível ler o diagnóstico salvo.',e);}}
@@ -192,72 +200,72 @@ async function renderHistory() {
       )
       .join("");
 
-list
-  .querySelectorAll(
-    "[data-delete-remote]"
-  )
-  .forEach((button) => {
-    button.onclick = async () => {
-      const diagnosticId =
-        button.dataset.deleteRemote;
+    list
+      .querySelectorAll(
+        "[data-edit-remote]"
+      )
+      .forEach((button) => {
+        button.onclick = () => {
+          const record =
+            history.find(
+              (item) =>
+                item.id ===
+                button.dataset.editRemote
+            );
 
-      const record =
-        history.find(
-          (item) =>
-            item.id === diagnosticId
-        );
+          if (!record) {
+            return;
+          }
 
-      const companyName =
-        record?.client?.companyName ||
-        "este cliente";
+          state = {
+            ...emptyState(),
 
-      const confirmed = confirm(
-        `Deseja realmente excluir o diagnóstico de ${companyName}?\n\nEssa ação não poderá ser desfeita.`
-      );
+            remoteRecordId:
+              record.id,
 
-      if (!confirmed) {
-        return;
-      }
+            recordId:
+              record.id,
 
-      const originalText =
-        button.textContent;
+            sectionIndex: 0,
 
-      button.disabled = true;
-      button.textContent = "Excluindo...";
+            client: {
+              ...record.client,
+            },
 
-      try {
-        await excluirDiagnostico(
-          diagnosticId
-        );
+            answers: {
+              ...record.answers,
+            },
 
-        console.log(
-          "Diagnóstico excluído:",
-          diagnosticId
-        );
+            lastResult:
+              record.result,
+          };
 
-        await renderHistory();
-      } catch (error) {
-        console.error(
-          "Erro ao excluir diagnóstico:",
-          error
-        );
+          saveState();
+          fillClientForm();
+          renderSection();
 
-        alert(
-          "Não foi possível excluir o diagnóstico.\n\n" +
-            error.message
-        );
+          show("questions");
+          window.scrollTo(0, 0);
 
-        button.disabled = false;
-        button.textContent =
-          originalText;
-      }
-    };
-  });
+          const status =
+            document.getElementById(
+              "supabase-status"
+            );
+
+          if (status) {
+            status.textContent =
+              `Editando diagnóstico de ${record.client.companyName}.`;
+
+            status.style.color =
+              "#475569";
+          }
+        };
+      });
   } catch (error) {
     console.error("Erro ao carregar o histórico:", error);
     list.innerHTML = `
       <div class="empty-state">
-        Não foi possível carregar o histórico.
+        Não foi possível carregar o histórico do Supabase.
       </div>
     `;
   }
@@ -387,12 +395,39 @@ async function generateResult() {
       result,
     });
 
-    const savedDiagnostic =
-      await salvarDiagnostico({
-        client: state.client,
-        answers: state.answers,
-        result,
-      });
+    const isEditing = Boolean(state.remoteRecordId);
+
+    let savedDiagnostic;
+
+    if (state.remoteRecordId) {
+      savedDiagnostic =
+        await atualizarDiagnostico({
+          id: state.remoteRecordId,
+          client: state.client,
+          answers: state.answers,
+          result,
+        });
+
+      console.log(
+        "Diagnóstico atualizado:",
+        savedDiagnostic
+      );
+    } else {
+      savedDiagnostic =
+        await salvarDiagnostico({
+          client: state.client,
+          answers: state.answers,
+          result,
+        });
+
+      state.remoteRecordId =
+        savedDiagnostic.id;
+
+      console.log(
+        "Diagnóstico criado:",
+        savedDiagnostic
+      );
+    }
 
     console.log(
       "SALVAMENTO CONCLUÍDO",
@@ -401,7 +436,9 @@ async function generateResult() {
 
     if (status) {
       status.textContent =
-        "Diagnóstico salvo no Supabase.";
+        isEditing
+          ? "Diagnóstico atualizado no Supabase."
+          : "Diagnóstico salvo no Supabase.";
 
       status.style.color = "#15803d";
     }
@@ -436,7 +473,24 @@ async function generateResult() {
   show("result");
   window.scrollTo(0, 0);
 }
-function startNewDiagnostic(){if(hasSavedProgress()&&!confirm('Existe um diagnóstico salvo. Deseja apagá-lo e iniciar um novo?'))return;clearState();show('questions');renderSection();}
+function startNewDiagnostic() {
+  if (
+    hasSavedProgress() &&
+    !confirm(
+      "Existe um diagnóstico salvo. Deseja apagá-lo e iniciar um novo?"
+    )
+  ) {
+    return;
+  }
+
+  clearState();
+
+  state.remoteRecordId = null;
+  state.recordId = null;
+
+  show("questions");
+  renderSection();
+}
 function continueSavedDiagnostic(){loadState();fillClientForm();if(Object.keys(state.answers).length>=CONFIG.sections.reduce((n,s)=>n+s.questions.length,0)&&state.client.companyName){renderReview();show('review');}else{show('questions');renderSection();}window.scrollTo(0,0);}
 function normalizeText(value){return String(value||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();}
 function parseCSV(text){const rows=[];let row=[],field='',quoted=false;for(let i=0;i<text.length;i++){const ch=text[i];if(ch==='"'){if(quoted&&text[i+1]==='"'){field+='"';i++;}else quoted=!quoted;}else if(ch===','&&!quoted){row.push(field);field='';}else if((ch==='\n'||ch==='\r')&&!quoted){if(ch==='\r'&&text[i+1]==='\n')i++;row.push(field);rows.push(row);row=[];field='';}else field+=ch;}if(field||row.length){row.push(field);rows.push(row);}return rows;}
@@ -470,5 +524,21 @@ document.getElementById("generateBtn").onclick = async () => {
 };
 document.getElementById('resultHomeBtn').onclick=()=>{show('home');updateContinueButton();};
 document.getElementById('downloadJsonBtn').onclick=downloadCurrentJson;
-document.getElementById('restartBtn').onclick=()=>{if(confirm('Deseja iniciar um novo diagnóstico? O resultado atual continuará salvo no histórico.')){clearState();show('questions');renderSection();}};
+document
+  .getElementById("restartBtn")
+  .onclick = () => {
+    if (
+      confirm(
+        "Deseja iniciar um novo diagnóstico? O resultado atual continuará salvo no histórico."
+      )
+    ) {
+      clearState();
+
+      state.remoteRecordId = null;
+      state.recordId = null;
+
+      show("questions");
+      renderSection();
+    }
+  };
 loadState();updateContinueButton();fillClientForm();
