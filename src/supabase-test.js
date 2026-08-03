@@ -12,18 +12,19 @@ async function testarConexao() {
     const response = await fetch(
       `${SUPABASE_URL}/rest/v1/diagnostics?select=id&limit=1`,
       {
+        method: "GET",
         headers: {
           apikey: SUPABASE_KEY,
-          Authorization: `Bearer ${SUPABASE_KEY}`,
+          Accept: "application/json",
         },
       }
     );
 
-    if (!response.ok) {
-      const error = await response.text();
+    const responseText = await response.text();
 
+    if (!response.ok) {
       throw new Error(
-        `${response.status}: ${error}`
+        `Erro ${response.status}: ${responseText}`
       );
     }
 
@@ -32,7 +33,10 @@ async function testarConexao() {
 
     status.style.color = "#15803d";
   } catch (error) {
-    console.error(error);
+    console.error(
+      "Erro ao conectar com o Supabase:",
+      error
+    );
 
     status.textContent =
       "Não foi possível conectar ao Supabase.";

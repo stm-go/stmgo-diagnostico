@@ -51,12 +51,12 @@ export async function salvarDiagnostico({
     {
       method: "POST",
 
-      headers: {
+        headers: {
         apikey: SUPABASE_KEY,
-        Authorization: `Bearer ${SUPABASE_KEY}`,
         "Content-Type": "application/json",
+        Accept: "application/json",
         Prefer: "return=representation",
-      },
+        },
 
       body: JSON.stringify(diagnostic),
     }
