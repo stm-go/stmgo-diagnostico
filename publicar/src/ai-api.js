@@ -3,7 +3,7 @@ import {
 } from "./auth.js";
 
 const AI_ENDPOINT =
-  "/api/generate-diagnostic-ai";
+  "/.netlify/functions/generate-diagnostic-ai";
 
 const REQUEST_TIMEOUT =
   90000;
