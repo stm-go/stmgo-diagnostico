@@ -25,7 +25,8 @@ export const supabaseClient =
     }
   );
 
-const APP_SCREENS = [
+const ALL_SCREENS = [
+  "login",
   "home",
   "questions",
   "client",
@@ -34,48 +35,38 @@ const APP_SCREENS = [
   "result",
 ];
 
-const DRAFT_KEYS = [
-  "stmgo-diagnostico-draft-v1",
-  "stmgo-diagnostico-passo-4-draft",
-];
-
-function setAuthStatus(
-  message,
-  type = "info"
-) {
-  const status =
-    document.getElementById(
-      "supabase-status"
-    );
-
-  if (!status) {
-    return;
-  }
-
-  status.textContent = message;
-  status.className =
-    `status-toast ${type}`;
-}
-
-function hideAppScreens() {
-  APP_SCREENS.forEach((name) => {
+function hideAllScreens() {
+  ALL_SCREENS.forEach((name) => {
     document
-      .getElementById(
-        `screen-${name}`
-      )
+      .getElementById(`screen-${name}`)
       ?.classList.add("hidden");
   });
 }
 
 function showLogin() {
-  hideAppScreens();
+  hideAllScreens();
+
+  const loginScreen =
+    document.getElementById(
+      "screen-login"
+    );
+
+  if (!loginScreen) {
+    console.error(
+      "A tela screen-login não foi encontrada."
+    );
+
+    return;
+  }
+
+  loginScreen.classList.remove(
+    "hidden"
+  );
 
   document
-    .getElementById("screen-login")
-    ?.classList.remove("hidden");
-
-  document
-    .getElementById("sessionControls")
+    .getElementById(
+      "sessionControls"
+    )
     ?.classList.add("hidden");
 
   const password =
@@ -94,16 +85,33 @@ function showLogin() {
 }
 
 function showApplication(session) {
-  document
-    .getElementById("screen-login")
-    ?.classList.add("hidden");
+  hideAllScreens();
+
+  const homeScreen =
+    document.getElementById(
+      "screen-home"
+    );
+
+  if (!homeScreen) {
+    console.error(
+      "A tela screen-home não foi encontrada."
+    );
+
+    alert(
+      "A tela inicial não foi encontrada no index.html."
+    );
+
+    return;
+  }
+
+  homeScreen.classList.remove(
+    "hidden"
+  );
 
   document
-    .getElementById("screen-home")
-    ?.classList.remove("hidden");
-
-  document
-    .getElementById("sessionControls")
+    .getElementById(
+      "sessionControls"
+    )
     ?.classList.remove("hidden");
 
   const loggedUser =
@@ -120,6 +128,11 @@ function showApplication(session) {
   setAuthStatus(
     "Usuário autenticado.",
     "success"
+  );
+
+  console.log(
+    "Tela inicial exibida.",
+    session?.user?.email
   );
 }
 

@@ -5,6 +5,11 @@ import {
   atualizarDiagnostico,
 } from "./supabase-api.js";
 
+import {
+  revisarRecomendacoesComIa,
+  gerarConsideracoesComIa,
+} from "./ai-api.js";
+
 const CONFIG = await loadConfig();
 const STORAGE_KEY =
   "stmgo-diagnostico-draft-v1";
@@ -30,6 +35,9 @@ const emptyState = () => ({
   remoteRecordId: null,
   lastResult: null,
   completedAt: null,
+
+  reviewRecommendations: [],
+  finalConsiderations: "",
 });
 
 let state = emptyState();
@@ -44,6 +52,7 @@ let historyState = {
 };
 
 let historySearchTimer = null;
+let reportPreviewMode = false;
 
 async function loadConfig() {
   const response = await fetch(
@@ -104,6 +113,32 @@ function escapeHtml(value) {
         "'": "&#39;",
       })[char]
     );
+}
+
+function formatParagraphs(value) {
+  const text =
+    String(value || "").trim();
+
+  if (!text) {
+    return `
+      <p>
+        As considerações finais ainda não foram preenchidas.
+      </p>
+    `;
+  }
+
+  return text
+    .split(/\n\s*\n/)
+    .map(
+      (paragraph) => `
+        <p>
+          ${escapeHtml(
+            paragraph.trim()
+          ).replace(/\n/g, "<br>")}
+        </p>
+      `
+    )
+    .join("");
 }
 
 function formatDate(value) {
@@ -419,22 +454,70 @@ function buildResult() {
     }
   }
 
-  const recommendations =
-    [
-      ...generated.values(),
-    ]
-      .sort(
-        (a, b) =>
+  const baseRecommendations =
+  [
+    ...generated.values(),
+  ]
+    .sort(
+      (a, b) =>
+        severityRank(
+          b.severity
+        ) -
           severityRank(
-            b.severity
-          ) -
-            severityRank(
-              a.severity
-            ) ||
-          a.priority -
-            b.priority
-      )
-      .slice(0, 10);
+            a.severity
+          ) ||
+        a.priority -
+          b.priority
+    )
+    .slice(0, 10);
+
+  const recommendations =
+    Array.isArray(
+      state.reviewRecommendations
+    ) &&
+    state.reviewRecommendations.length
+      ? state.reviewRecommendations
+          .map((reviewed) => {
+            const base =
+              baseRecommendations.find(
+                (item) =>
+                  item.key ===
+                  reviewed.key
+              );
+
+            return {
+              ...base,
+              ...reviewed,
+
+              severity:
+                reviewed.severity ||
+                base?.severity ||
+                "medium",
+
+              priority:
+                base?.priority ??
+                reviewed.priority ??
+                999,
+
+              evidence:
+                base?.evidence ||
+                reviewed.evidence ||
+                [],
+            };
+          })
+          .sort(
+            (a, b) =>
+              severityRank(
+                b.severity
+              ) -
+                severityRank(
+                  a.severity
+                ) ||
+              a.priority -
+                b.priority
+          )
+          .slice(0, 10)
+      : baseRecommendations;
 
   const summary = {
     yes: 0,
@@ -477,6 +560,11 @@ function buildResult() {
     scores,
     recommendations,
     summary,
+
+    finalConsiderations:
+      String(
+        state.finalConsiderations || ""
+      ).trim(),
   };
 }
 
@@ -670,6 +758,529 @@ function fillClientForm() {
   );
 }
 
+function renderReviewRisks() {
+  const container =
+    element("reviewRiskSummary");
+
+  if (!container) {
+    return;
+  }
+
+  const risks = [];
+
+  CONFIG.sections.forEach(
+    (section) => {
+      section.questions.forEach(
+        (question) => {
+          const answer =
+            state.answers[
+              question.id
+            ] || {};
+
+          const value =
+            answer.value;
+
+          const observation =
+            String(
+              answer.observation || ""
+            ).trim();
+
+          const needsAttention =
+            !value ||
+            [
+              "no",
+              "partial",
+              "unknown",
+            ].includes(value) ||
+            Boolean(observation);
+
+          if (!needsAttention) {
+            return;
+          }
+
+          risks.push({
+            section:
+              section.name,
+
+            question:
+              question.text,
+
+            value:
+              value || "missing",
+
+            observation,
+          });
+        }
+      );
+    }
+  );
+
+  if (!risks.length) {
+    container.innerHTML = `
+      <div class="empty-state compact">
+        Nenhum ponto crítico foi identificado.
+      </div>
+    `;
+
+    return;
+  }
+
+  container.innerHTML =
+    risks
+      .map((risk) => {
+        let className = "";
+
+        if (
+          risk.value === "partial"
+        ) {
+          className = "partial";
+        }
+
+        if (
+          risk.value === "unknown" ||
+          risk.value === "missing" ||
+          risk.value === "yes"
+        ) {
+          className = "unknown";
+        }
+
+        const label =
+          risk.value === "missing"
+            ? "Sem resposta"
+            : answerLabel(
+                risk.value
+              );
+
+        return `
+          <article
+            class="review-risk-item ${className}"
+          >
+            <span
+              class="review-risk-answer"
+            >
+              ${escapeHtml(label)}
+            </span>
+
+            <h4>
+              ${escapeHtml(
+                risk.question
+              )}
+            </h4>
+
+            <p>
+              Área:
+              <strong>
+                ${escapeHtml(
+                  risk.section
+                )}
+              </strong>
+            </p>
+
+            ${
+              risk.observation
+                ? `
+                  <p>
+                    Observação:
+                    ${escapeHtml(
+                      risk.observation
+                    )}
+                  </p>
+                `
+                : ""
+            }
+          </article>
+        `;
+      })
+      .join("");
+}
+
+function collectAttentionPoints() {
+  const points = [];
+
+  CONFIG.sections.forEach(
+    (section) => {
+      section.questions.forEach(
+        (question) => {
+          const answer =
+            state.answers[
+              question.id
+            ] || {};
+
+          const value =
+            answer.value;
+
+          const observation =
+            String(
+              answer.observation || ""
+            ).trim();
+
+          if (
+            value === "yes" &&
+            !observation
+          ) {
+            return;
+          }
+
+          points.push({
+            section:
+              section.name,
+
+            question:
+              question.text,
+
+            answer:
+              value
+                ? answerLabel(value)
+                : "Sem resposta",
+
+            observation,
+          });
+        }
+      );
+    }
+  );
+
+  return points;
+}
+
+function buildAiDiagnosticPayload() {
+  const result =
+    buildResult();
+
+  return {
+    client: {
+      ...state.client,
+    },
+
+    globalScore:
+      result.global,
+
+    maturityLevel:
+      result.level.name,
+
+    scores:
+      result.scores,
+
+    attentionPoints:
+      collectAttentionPoints(),
+
+    baseRecommendations:
+      result.recommendations.map(
+        (recommendation) => ({
+          key:
+            recommendation.key,
+
+          title:
+            recommendation.title,
+
+          description:
+            recommendation.description,
+
+          severity:
+            recommendation.severity,
+        })
+      ),
+  };
+}
+
+function renderReviewRecommendations() {
+  const container =
+    element(
+      "reviewRecommendationsPreview"
+    );
+
+  if (!container) {
+    return;
+  }
+
+  const result =
+    buildResult();
+
+  const recommendations =
+    result.recommendations || [];
+
+  state.reviewRecommendations =
+    recommendations;
+
+  if (!recommendations.length) {
+    container.innerHTML = `
+      <div class="empty-state compact">
+        Nenhuma recomendação prioritária foi gerada.
+      </div>
+    `;
+
+    return;
+  }
+
+  container.innerHTML =
+    recommendations
+      .map(
+        (
+          recommendation,
+          index
+        ) => `
+          <article class="rec">
+            <div class="rec-head">
+              <small>
+                Prioridade ${index + 1}
+              </small>
+
+              <span
+                class="severity severity-${escapeHtml(
+                  recommendation.severity ||
+                  "medium"
+                )}"
+              >
+                ${escapeHtml(
+                  recommendation.severity ||
+                  "medium"
+                )}
+              </span>
+            </div>
+
+            <h3>
+              ${escapeHtml(
+                recommendation.title
+              )}
+            </h3>
+
+            <p>
+              ${escapeHtml(
+                recommendation.description
+              )}
+            </p>
+          </article>
+        `
+      )
+      .join("");
+}
+
+async function reviewRecommendationsWithAi() {
+  const button =
+    element(
+      "reviewRecommendationsAiBtn"
+    );
+
+  if (!button) {
+    return;
+  }
+
+  const originalText =
+    button.textContent;
+
+  button.disabled = true;
+  button.textContent =
+    "Revisando...";
+
+  setStatus(
+    "A IA está revisando as recomendações.",
+    "info"
+  );
+
+  try {
+    const recommendations =
+      await revisarRecomendacoesComIa(
+        buildAiDiagnosticPayload()
+      );
+
+    state.reviewRecommendations =
+      recommendations;
+
+    saveState();
+    renderReviewRecommendations();
+
+    const approval =
+      element(
+        "reviewRecommendationsApproved"
+      );
+
+    if (approval) {
+      approval.checked = false;
+    }
+
+    updateReviewApproval();
+
+    setStatus(
+      "Recomendações revisadas com IA. Confira o conteúdo antes de aprovar.",
+      "success"
+    );
+  } catch (error) {
+    console.error(
+      "Erro ao revisar recomendações:",
+      error
+    );
+
+    setStatus(
+      error.message ||
+        "Não foi possível revisar as recomendações.",
+      "error"
+    );
+
+    alert(
+      `Não foi possível revisar as recomendações com IA.\n\n${error.message}`
+    );
+  } finally {
+    button.disabled = false;
+    button.textContent =
+      originalText;
+  }
+}
+
+async function generateFinalConsiderationsWithAi() {
+  const button =
+    element(
+      "reviewFinalConsiderationsAiBtn"
+    );
+
+  if (!button) {
+    return;
+  }
+
+  const originalText =
+    button.textContent;
+
+  button.disabled = true;
+  button.textContent =
+    "Gerando...";
+
+  setStatus(
+    "A IA está gerando as considerações finais.",
+    "info"
+  );
+
+  try {
+    const text =
+      await gerarConsideracoesComIa(
+        buildAiDiagnosticPayload()
+      );
+
+    state.finalConsiderations =
+      text;
+
+    const textarea =
+      element(
+        "reviewFinalConsiderations"
+      );
+
+    if (textarea) {
+      textarea.value = text;
+    }
+
+    saveState();
+
+    const approval =
+      element(
+        "reviewConsiderationsApproved"
+      );
+
+    if (approval) {
+      approval.checked = false;
+    }
+
+    updateReviewApproval();
+
+    setStatus(
+      "Considerações finais geradas. Revise o texto antes de aprovar.",
+      "success"
+    );
+  } catch (error) {
+    console.error(
+      "Erro ao gerar considerações:",
+      error
+    );
+
+    setStatus(
+      error.message ||
+        "Não foi possível gerar as considerações.",
+      "error"
+    );
+
+    alert(
+      `Não foi possível gerar as considerações com IA.\n\n${error.message}`
+    );
+  } finally {
+    button.disabled = false;
+    button.textContent =
+      originalText;
+  }
+}
+
+function updateReviewApproval() {
+  const checkboxIds = [
+    "reviewDataApproved",
+    "reviewAnswersApproved",
+    "reviewRecommendationsApproved",
+    "reviewConsiderationsApproved",
+  ];
+
+const considerationsText =
+  element(
+    "reviewFinalConsiderations"
+  )?.value.trim() || "";
+
+const allApproved =
+  checkboxIds.every(
+    (id) =>
+      element(id)?.checked
+  ) &&
+  Boolean(considerationsText);
+
+  const generateButton =
+    element("generateBtn");
+
+  if (generateButton) {
+    generateButton.disabled =
+      !allApproved;
+  }
+
+  const previewButton =
+    element("reportPreviewBtn");
+
+  if (previewButton) {
+    previewButton.disabled = !allApproved;
+  }
+
+  const status =
+    document.querySelector(
+      ".review-status"
+    );
+
+  if (status) {
+    status.innerHTML =
+      allApproved
+        ? `
+          <span
+            class="review-status-dot"
+          ></span>
+          Revisão aprovada
+        `
+        : `
+          <span
+            class="review-status-dot"
+          ></span>
+          Aguardando revisão
+        `;
+  }
+}
+
+function resetReviewApproval() {
+  [
+    "reviewDataApproved",
+    "reviewAnswersApproved",
+    "reviewRecommendationsApproved",
+    "reviewConsiderationsApproved",
+  ].forEach((id) => {
+    const checkbox =
+      element(id);
+
+    if (checkbox) {
+      checkbox.checked = false;
+    }
+  });
+
+  updateReviewApproval();
+}
+
 function renderReview() {
   saveClient();
 
@@ -677,32 +1288,90 @@ function renderReview() {
   let unknown = 0;
   let total = 0;
 
+  const client =
+    state.client;
+
   let html = `
     <div class="review-section">
       <h3>
-        ${escapeHtml(state.client.companyName || "Empresa não informada")}
+        ${escapeHtml(
+          client.companyName ||
+          "Empresa não informada"
+        )}
       </h3>
 
       <div class="review-line">
         <span>Contato</span>
+
         <strong>
-          ${escapeHtml(state.client.contactName || "-")}
+          ${escapeHtml(
+            client.contactName ||
+            "-"
+          )}
         </strong>
       </div>
 
       <div class="review-line">
         <span>E-mail</span>
+
         <strong>
-          ${escapeHtml(state.client.contactEmail || "-")}
+          ${escapeHtml(
+            client.contactEmail ||
+            "-"
+          )}
+        </strong>
+      </div>
+
+      <div class="review-line">
+        <span>Telefone</span>
+
+        <strong>
+          ${escapeHtml(
+            client.contactPhone ||
+            "-"
+          )}
         </strong>
       </div>
 
       <div class="review-line">
         <span>Segmento</span>
+
         <strong>
-          ${escapeHtml(state.client.segment || "-")}
+          ${escapeHtml(
+            client.segment ||
+            "-"
+          )}
         </strong>
       </div>
+
+      <div class="review-line">
+        <span>Colaboradores</span>
+
+        <strong>
+          ${escapeHtml(
+            client.employeeCount ||
+            "-"
+          )}
+        </strong>
+      </div>
+
+      ${
+        client.clientNotes
+          ? `
+            <div class="review-section">
+              <strong>
+                Observações gerais
+              </strong>
+
+              <p>
+                ${escapeHtml(
+                  client.clientNotes
+                )}
+              </p>
+            </div>
+          `
+          : ""
+      }
     </div>
   `;
 
@@ -738,11 +1407,16 @@ function renderReview() {
         <div class="review-section">
           <div class="review-line">
             <strong>
-              ${escapeHtml(section.name)}
+              ${escapeHtml(
+                section.name
+              )}
             </strong>
 
             <span>
-              ${sectionAnswered} de ${section.questions.length} respondidas
+              ${sectionAnswered}
+              de
+              ${section.questions.length}
+              respondidas
             </span>
           </div>
         </div>
@@ -750,9 +1424,13 @@ function renderReview() {
     }
   );
 
-  element(
-    "reviewContent"
-  ).innerHTML = html;
+  const reviewContent =
+    element("reviewContent");
+
+  if (reviewContent) {
+    reviewContent.innerHTML =
+      html;
+  }
 
   const messages = [];
 
@@ -764,21 +1442,60 @@ function renderReview() {
 
   if (unknown) {
     messages.push(
-      `${unknown} resposta(s) marcada(s) como “Não sei responder” ficarão pendentes.`
+      `${unknown} resposta(s) marcada(s) como “Não sei responder”.`
     );
   }
 
-  element(
-    "reviewWarning"
-  ).textContent =
-    messages.join(" ");
+  const warning =
+    element("reviewWarning");
 
+  if (warning) {
+    warning.textContent =
+      messages.join(" ");
+
+    warning.classList.toggle(
+      "hidden",
+      messages.length === 0
+    );
+  }
+
+  renderReviewRisks();
+  renderReviewRecommendations();
+
+  const recommendationsAiButton =
   element(
-    "reviewWarning"
-  ).classList.toggle(
-    "hidden",
-    messages.length === 0
+    "reviewRecommendationsAiBtn"
   );
+
+  if (recommendationsAiButton) {
+    recommendationsAiButton.disabled =
+      !state.reviewRecommendations
+        .length;
+  }
+
+  const considerationsAiButton =
+    element(
+      "reviewFinalConsiderationsAiBtn"
+    );
+
+  if (considerationsAiButton) {
+    considerationsAiButton.disabled =
+      false;
+  }
+
+  const considerations =
+    element(
+      "reviewFinalConsiderations"
+    );
+
+  if (considerations) {
+    considerations.value =
+      state.finalConsiderations ||
+      "";
+  }
+
+  resetReviewApproval();
+  saveState();
 }
 
 function summarizeAnswers(
@@ -884,6 +1601,10 @@ function convertSupabaseRecord(
 
       level,
 
+      finalConsiderations:
+        record.final_considerations ||
+        "",
+
       scores: [
         {
           id: "gestao",
@@ -934,6 +1655,11 @@ function renderStoredResult(
     result,
     client,
   } = record;
+
+  const finalConsiderations =
+  result.finalConsiderations ||
+  state.finalConsiderations ||
+  "";
 
   element(
     "resultCompany"
@@ -1170,6 +1896,17 @@ function renderStoredResult(
         )
         .join("");
   }
+  const considerationsOutput =
+  element(
+    "finalConsiderationsOutput"
+  );
+
+  if (considerationsOutput) {
+    considerationsOutput.innerHTML =
+      formatParagraphs(
+        finalConsiderations
+      );
+  }
 }
 
 function loadRecordIntoState(
@@ -1196,6 +1933,11 @@ function loadRecordIntoState(
     lastResult:
       record.result,
 
+    finalConsiderations:
+    record.result
+      .finalConsiderations ||
+    "",
+
     completedAt:
       record.completedAt,
   };
@@ -1212,6 +1954,10 @@ function loadRecordIntoState(
       "info"
     );
   } else {
+    setReportPreviewMode(
+      false
+    );
+
     renderStoredResult(
       record
     );
@@ -1523,6 +2269,117 @@ async function renderHistory() {
   }
 }
 
+function setReportPreviewMode(
+  enabled
+) {
+  reportPreviewMode =
+    enabled;
+
+  const homeButton =
+    element(
+      "resultHomeBtn"
+    );
+
+  const editButton =
+    element(
+      "editResultBtn"
+    );
+
+  const downloadButton =
+    element(
+      "downloadJsonBtn"
+    );
+
+  const restartButton =
+    element(
+      "restartBtn"
+    );
+
+  const toolbarTitle =
+    element(
+      "reportToolbarTitle"
+    );
+
+  if (homeButton) {
+    homeButton.textContent =
+      enabled
+        ? "Voltar para revisão"
+        : "Início";
+  }
+
+  if (toolbarTitle) {
+    toolbarTitle.textContent =
+      enabled
+        ? "Pré-visualização não salva"
+        : "Relatório de Segurança Digital";
+  }
+
+  [
+    editButton,
+    downloadButton,
+    restartButton,
+  ].forEach((button) => {
+    button?.classList.toggle(
+      "hidden",
+      enabled
+    );
+  });
+}
+
+function previewReport() {
+  saveClient();
+
+  const result =
+    buildResult();
+
+  const now =
+    new Date().toISOString();
+
+  const previewRecord = {
+    id:
+      state.remoteRecordId ||
+      null,
+
+    completedAt:
+      state.completedAt ||
+      now,
+
+    updatedAt:
+      now,
+
+    client: {
+      ...state.client,
+    },
+
+    answers:
+      structuredClone(
+        state.answers || {}
+      ),
+
+    result,
+  };
+
+  renderStoredResult(
+    previewRecord
+  );
+
+  setReportPreviewMode(
+    true
+  );
+
+  show("result");
+
+  setStatus(
+    "Pré-visualização gerada. O diagnóstico ainda não foi salvo.",
+    "info"
+  );
+
+  window.scrollTo(
+    0,
+    0
+  );
+}
+
 async function generateResult() {
   saveClient();
 
@@ -1591,6 +2448,10 @@ async function generateResult() {
 
     renderStoredResult(
       record
+    );
+
+    setReportPreviewMode(
+      false
     );
 
     show("result");
@@ -2189,12 +3050,71 @@ function bindEvents() {
 
   element(
     "reviewBackBtn"
-  ).addEventListener(
+  )?.addEventListener(
     "click",
     () => {
       fillClientForm();
       show("client");
+      window.scrollTo(0, 0);
     }
+  );
+
+  element(
+    "reviewEditClientBtn"
+  )?.addEventListener(
+    "click",
+    () => {
+      fillClientForm();
+      show("client");
+      window.scrollTo(0, 0);
+    }
+  );
+
+  [
+    "reviewDataApproved",
+    "reviewAnswersApproved",
+    "reviewRecommendationsApproved",
+    "reviewConsiderationsApproved",
+  ].forEach((id) => {
+    element(id)
+      ?.addEventListener(
+        "change",
+        updateReviewApproval
+      );
+  });
+
+  element(
+    "reviewFinalConsiderations"
+  )?.addEventListener(
+    "input",
+    (event) => {
+      state.finalConsiderations =
+        event.target.value;
+
+      saveState();
+      updateReviewApproval();
+    }
+  );
+
+  element(
+    "reviewRecommendationsAiBtn"
+  )?.addEventListener(
+    "click",
+    reviewRecommendationsWithAi
+  );
+
+  element(
+    "reviewFinalConsiderationsAiBtn"
+  )?.addEventListener(
+    "click",
+    generateFinalConsiderationsWithAi
+  );
+
+  element(
+    "reportPreviewBtn"
+  )?.addEventListener(
+    "click",
+    previewReport
   );
 
   element(
@@ -2209,8 +3129,35 @@ function bindEvents() {
   ).addEventListener(
     "click",
     () => {
+      if (
+        reportPreviewMode
+      ) {
+        setReportPreviewMode(
+          false
+        );
+
+        show("review");
+
+        setStatus(
+          "Você voltou para a revisão. Nenhuma alteração foi salva no Supabase.",
+          "info"
+        );
+
+        window.scrollTo(
+          0,
+          0
+        );
+
+        return;
+      }
+
       show("home");
       updateContinueButton();
+
+      window.scrollTo(
+        0,
+        0
+      );
     }
   );
 

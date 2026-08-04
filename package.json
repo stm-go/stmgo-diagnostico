@@ -8,5 +8,8 @@
     "start": "node server.mjs",
     "test": "node test-core.mjs",
     "check": "node --check server.mjs && node --check diagnostic-core.mjs && node --check test-core.mjs && node --check src/auth.js && node --check src/main.js && node --check src/supabase-api.js && node --check src/supabase-config.js"
+  },
+  "devDependencies": {
+    "netlify-cli": "^27.0.3"
   }
 }

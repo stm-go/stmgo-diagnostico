@@ -39,9 +39,9 @@
       </section>
 
       <section id="screen-home" class="hero hidden">
-        <div class="card home-card">
+        <div class="card">
           <h1>Diagnóstico de Segurança Digital</h1>
-          <p class="lead">Responda às perguntas e receba uma visão inicial da maturidade da empresa, com recomendações automáticas.</p>
+          <p class="lead">Responda às perguntas e receba uma visão inicial da maturidade da sua empresa, com recomendações automáticas.</p>
           <div class="home-actions">
             <button class="btn btn-primary" id="startBtn" type="button">Iniciar novo diagnóstico</button>
             <button class="btn btn-secondary" id="importBtn" type="button">Importar planilha CSV</button>
@@ -50,7 +50,233 @@
           </div>
           <input class="file-input" type="file" id="csvInput" accept=".csv,text/csv">
           <div class="import-status" id="importStatus"></div>
-          <div class="saved-note">O rascunho fica neste navegador. Diagnósticos concluídos são enviados ao Supabase.</div>
+          <div class="saved-note">O rascunho fica salvo neste navegador. Diagnósticos concluídos são enviados ao Supabase.</div>
+        </div>
+      </section>
+
+      <section id="screen-review" class="hidden">
+        <div class="card review-workspace">
+          <div class="review-header">
+            <div>
+              <div class="badge">
+                Revisão interna do consultor
+              </div>
+
+              <h2>Revisar diagnóstico</h2>
+
+              <p class="lead">
+                Confira as informações registradas durante a entrevista antes de
+                gerar o relatório que será apresentado ao cliente.
+              </p>
+            </div>
+
+            <div class="review-status">
+              <span class="review-status-dot"></span>
+              Aguardando revisão
+            </div>
+          </div>
+
+          <div
+            id="reviewWarning"
+            class="warning hidden"
+          ></div>
+
+          <div class="review-layout">
+            <div class="review-main">
+              <section class="review-panel">
+                <div class="review-panel-header">
+                  <div>
+                    <span class="review-step-number">1</span>
+                    <h3>Dados da entrevista</h3>
+                  </div>
+
+                  <button
+                    class="btn btn-secondary btn-small"
+                    id="reviewEditClientBtn"
+                    type="button"
+                  >
+                    Editar dados
+                  </button>
+                </div>
+
+                <div id="reviewContent"></div>
+              </section>
+
+              <section class="review-panel">
+                <div class="review-panel-header">
+                  <div>
+                    <span class="review-step-number">2</span>
+                    <h3>Pontos que exigem atenção</h3>
+                  </div>
+                </div>
+
+                <p class="review-panel-description">
+                  Respostas negativas, parciais, pendentes ou acompanhadas de
+                  observações serão destacadas aqui.
+                </p>
+
+                <div
+                  id="reviewRiskSummary"
+                  class="review-risk-list"
+                >
+                  <div class="empty-state compact">
+                    O resumo dos pontos críticos será exibido após a atualização do
+                    arquivo principal.
+                  </div>
+                </div>
+              </section>
+
+              <section class="review-panel">
+                <div class="review-panel-header">
+                  <div>
+                    <span class="review-step-number">3</span>
+                    <h3>Recomendações para o cliente</h3>
+                  </div>
+
+                  <button
+                    class="btn btn-secondary btn-small"
+                    id="reviewRecommendationsAiBtn"
+                    type="button"
+                    disabled
+                  >
+                    Revisar com IA
+                  </button>
+                </div>
+
+                <p class="review-panel-description">
+                  As recomendações-base serão geradas pelas regras do diagnóstico.
+                  Posteriormente, a IA poderá aprimorar a linguagem e personalizar o
+                  conteúdo.
+                </p>
+
+                <div
+                  id="reviewRecommendationsPreview"
+                  class="review-content-preview"
+                >
+                  <div class="empty-state compact">
+                    As recomendações aparecerão aqui antes da geração do relatório.
+                  </div>
+                </div>
+              </section>
+
+              <section class="review-panel">
+                <div class="review-panel-header">
+                  <div>
+                    <span class="review-step-number">4</span>
+                    <h3>Considerações finais</h3>
+                  </div>
+
+                  <button
+                    class="btn btn-secondary btn-small"
+                    id="reviewFinalConsiderationsAiBtn"
+                    type="button"
+                    disabled
+                  >
+                    Gerar com IA
+                  </button>
+                </div>
+
+                <p class="review-panel-description">
+                  Este texto será usado como resumo executivo do diagnóstico e poderá
+                  ser editado pelo consultor.
+                </p>
+
+                <textarea
+                  id="reviewFinalConsiderations"
+                  class="review-final-text"
+                  placeholder="As considerações finais serão geradas ou preenchidas aqui."
+                ></textarea>
+              </section>
+            </div>
+
+            <aside class="review-sidebar">
+              <div class="review-checklist-card">
+                <h3>Checklist de aprovação</h3>
+
+                <p>
+                  Confirme cada item antes de gerar o relatório para o cliente.
+                </p>
+
+                <label class="review-check-item">
+                  <input
+                    id="reviewDataApproved"
+                    type="checkbox"
+                  >
+                  <span>
+                    Revisei os dados da empresa
+                  </span>
+                </label>
+
+                <label class="review-check-item">
+                  <input
+                    id="reviewAnswersApproved"
+                    type="checkbox"
+                  >
+                  <span>
+                    Revisei as respostas da entrevista
+                  </span>
+                </label>
+
+                <label class="review-check-item">
+                  <input
+                    id="reviewRecommendationsApproved"
+                    type="checkbox"
+                  >
+                  <span>
+                    Revisei as recomendações
+                  </span>
+                </label>
+
+                <label class="review-check-item">
+                  <input
+                    id="reviewConsiderationsApproved"
+                    type="checkbox"
+                  >
+                  <span>
+                    Aprovei as considerações finais
+                  </span>
+                </label>
+              </div>
+
+              <div class="review-info-card">
+                <strong>Uso interno</strong>
+
+                <p>
+                  Esta tela é destinada ao consultor da stmgo. O cliente receberá
+                  somente o relatório final aprovado.
+                </p>
+              </div>
+            </aside>
+          </div>
+
+          <div class="review-footer">
+            <button
+              class="btn btn-secondary"
+              id="reviewBackBtn"
+              type="button"
+            >
+              Voltar
+            </button>
+
+            <div class="review-footer-actions">
+              <button
+                class="btn btn-secondary"
+                id="reportPreviewBtn"
+                type="button"
+                disabled
+              >
+                Pré-visualizar relatório
+              </button>
+
+              <button
+                class="btn btn-primary"
+                id="generateBtn"
+                type="button"
+              >
+                Gerar diagnóstico
+              </button>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -88,20 +314,6 @@
           <div class="btn-row">
             <button class="btn btn-secondary" id="clientBackBtn" type="button">Voltar</button>
             <button class="btn btn-primary" id="reviewBtn" type="button">Revisar diagnóstico</button>
-          </div>
-        </div>
-      </section>
-
-      <section id="screen-review" class="hidden">
-        <div class="card">
-          <div class="badge">Etapa 6 de 6</div>
-          <h2>Revisão</h2>
-          <p class="lead">Confira os dados antes de gerar o resultado.</p>
-          <div id="reviewContent"></div>
-          <div id="reviewWarning" class="warning hidden"></div>
-          <div class="btn-row">
-            <button class="btn btn-secondary" id="reviewBackBtn" type="button">Voltar</button>
-            <button class="btn btn-primary" id="generateBtn" type="button">Gerar diagnóstico</button>
           </div>
         </div>
       </section>
@@ -149,47 +361,312 @@
       </section>
 
       <section id="screen-result" class="hidden">
-        <article class="card report-card" id="reportContent">
-          <div class="report-header">
-            <div class="brand report-brand">stm<span>go</span></div>
-            <div class="badge">Relatório de Segurança Digital</div>
+        <!-- Barra interna do consultor: não aparece no PDF -->
+        <div class="report-toolbar no-print">
+          <div>
+            <span class="report-toolbar-label">
+              Pré-visualização do cliente
+            </span>
+
+            <strong id="reportToolbarTitle">
+              Relatório de Segurança Digital
+            </strong>
           </div>
 
-          <div class="score-main">
-            <h1 id="resultCompany"></h1>
-            <div id="resultMeta" class="result-meta"></div>
-            <div class="score-number" id="globalScore"></div>
-            <div class="level" id="maturityLevel"></div>
-            <p class="lead" id="maturityDescription"></p>
+          <div class="report-toolbar-actions">
+            <button
+              class="btn btn-secondary btn-small"
+              id="resultHomeBtn"
+              type="button"
+            >
+              Início
+            </button>
+
+            <button
+              class="btn btn-secondary btn-small"
+              id="editResultBtn"
+              type="button"
+            >
+              Editar diagnóstico
+            </button>
+
+            <button
+              class="btn btn-secondary btn-small"
+              id="downloadJsonBtn"
+              type="button"
+            >
+              Baixar dados
+            </button>
+
+            <button
+              class="btn btn-secondary btn-small"
+              id="restartBtn"
+              type="button"
+            >
+              Novo diagnóstico
+            </button>
+
+            <button
+              class="btn btn-primary btn-small"
+              id="printBtn"
+              type="button"
+            >
+              Exportar / imprimir PDF
+            </button>
           </div>
+        </div>
 
-          <section class="report-section">
-            <h2>Dados do cliente</h2>
-            <div class="details-grid" id="resultClientDetails"></div>
+        <!-- Conteúdo entregue ao cliente -->
+        <article
+          class="card report-card client-report"
+          id="reportContent"
+        >
+          <!-- Capa -->
+          <section class="report-cover">
+            <div class="report-cover-decoration"></div>
+
+            <div class="report-cover-top">
+              <div class="brand report-brand">
+                stm<span>go</span>
+              </div>
+
+              <span class="report-confidential">
+                Confidencial
+              </span>
+            </div>
+
+            <div class="report-cover-content">
+              <span class="report-eyebrow">
+                Diagnóstico de Segurança Digital
+              </span>
+
+              <h1 id="resultCompany">
+                Empresa
+              </h1>
+
+              <p class="report-cover-description">
+                Avaliação de maturidade, riscos e oportunidades de melhoria em
+                segurança digital.
+              </p>
+
+              <div
+                id="resultMeta"
+                class="result-meta report-cover-meta"
+              ></div>
+            </div>
+
+            <div class="report-cover-footer">
+              <span>
+                Relatório preparado pela stmgo
+              </span>
+
+              <span>
+                Uso exclusivo do cliente
+              </span>
+            </div>
           </section>
 
-          <section class="report-section">
-            <h2>Resumo das respostas</h2>
-            <div class="summary-grid" id="answerSummary"></div>
+          <!-- Resumo executivo -->
+          <section class="report-section report-executive">
+            <div class="report-section-heading">
+              <span class="report-eyebrow">
+                Resumo executivo
+              </span>
+
+              <h2>
+                Maturidade geral em segurança digital
+              </h2>
+
+              <p>
+                O resultado representa uma visão consolidada das áreas avaliadas
+                durante a entrevista realizada pelo consultor da stmgo.
+              </p>
+            </div>
+
+            <div class="report-score-layout">
+              <div class="score-main">
+                <span class="score-label">
+                  Pontuação geral
+                </span>
+
+                <div
+                  class="score-number"
+                  id="globalScore"
+                ></div>
+
+                <div
+                  class="level"
+                  id="maturityLevel"
+                ></div>
+              </div>
+
+              <div class="report-maturity-description">
+                <h3>
+                  Interpretação do resultado
+                </h3>
+
+                <p
+                  class="lead"
+                  id="maturityDescription"
+                ></p>
+              </div>
+            </div>
           </section>
 
-          <section class="report-section">
-            <h2>Resultado por área</h2>
-            <div class="score-grid" id="areaScores"></div>
+          <!-- Considerações finais -->
+          <section class="report-section report-considerations">
+            <div class="report-section-heading">
+              <span class="report-eyebrow">
+                Análise consultiva
+              </span>
+
+              <h2>
+                Considerações do especialista
+              </h2>
+            </div>
+
+            <div
+              id="finalConsiderationsOutput"
+              class="final-considerations-output"
+            >
+              <p>
+                As considerações finais do diagnóstico serão apresentadas aqui.
+              </p>
+            </div>
           </section>
 
+          <!-- Resultado por área -->
+          <section class="report-section report-section-light">
+            <div class="report-section-heading">
+              <span class="report-eyebrow">
+                Análise por dimensão
+              </span>
+
+              <h2>
+                Resultado por área
+              </h2>
+
+              <p>
+                A análise segmentada ajuda a identificar quais dimensões exigem
+                atenção prioritária.
+              </p>
+            </div>
+
+            <div
+              class="score-grid"
+              id="areaScores"
+            ></div>
+          </section>
+
+          <!-- Resumo das respostas -->
           <section class="report-section">
-            <h2>Recomendações prioritárias</h2>
+            <div class="report-section-heading">
+              <span class="report-eyebrow">
+                Visão consolidada
+              </span>
+
+              <h2>
+                Resumo das respostas
+              </h2>
+            </div>
+
+            <div
+              class="summary-grid"
+              id="answerSummary"
+            ></div>
+          </section>
+
+          <!-- Recomendações -->
+          <section class="report-section report-recommendations">
+            <div class="report-section-heading">
+              <span class="report-eyebrow">
+                Plano de evolução
+              </span>
+
+              <h2>
+                Recomendações prioritárias
+              </h2>
+
+              <p>
+                As recomendações abaixo foram definidas com base nos riscos e
+                oportunidades identificados durante o diagnóstico.
+              </p>
+            </div>
+
             <div id="recommendations"></div>
           </section>
 
-          <div class="btn-row report-actions">
-            <button class="btn btn-secondary" id="resultHomeBtn" type="button">Início</button>
-            <button class="btn btn-secondary" id="editResultBtn" type="button">Editar diagnóstico</button>
-            <button class="btn btn-secondary" id="downloadJsonBtn" type="button">Baixar dados</button>
-            <button class="btn btn-secondary" id="restartBtn" type="button">Novo diagnóstico</button>
-            <button class="btn btn-primary" id="printBtn" type="button">Exportar / imprimir PDF</button>
-          </div>
+          <!-- Dados do diagnóstico -->
+          <section class="report-section report-section-light">
+            <div class="report-section-heading">
+              <span class="report-eyebrow">
+                Informações da avaliação
+              </span>
+
+              <h2>
+                Dados do diagnóstico
+              </h2>
+            </div>
+
+            <div
+              class="details-grid"
+              id="resultClientDetails"
+            ></div>
+          </section>
+
+          <!-- Próximos passos -->
+          <section class="report-next-steps">
+            <div class="report-next-steps-content">
+              <span class="report-eyebrow">
+                Próximos passos
+              </span>
+
+              <h2>
+                Vamos transformar a segurança digital da sua empresa?
+              </h2>
+
+              <p>
+                A stmgo apoia empresas na organização da tecnologia, redução de
+                riscos e evolução contínua da operação, sempre com uma comunicação
+                simples, próxima e orientada ao negócio.
+              </p>
+
+              <div class="report-service-tags">
+                <span>Segurança Digital</span>
+                <span>Gestão de TI</span>
+                <span>Nuvem</span>
+                <span>Continuidade</span>
+                <span>Atendimento sem “tecniquês”</span>
+              </div>
+
+              <div class="report-contact">
+                <strong>
+                  stmgo
+                </strong>
+
+                <span>
+                  Tecnologia que funciona para você.
+                </span>
+              </div>
+            </div>
+          </section>
+
+          <!-- Rodapé -->
+          <footer class="report-footer">
+            <div class="brand report-footer-brand">
+              stm<span>go</span>
+            </div>
+
+            <div>
+              <strong>
+                Diagnóstico de Segurança Digital
+              </strong>
+
+              <span>
+                Documento confidencial
+              </span>
+            </div>
+          </footer>
         </article>
       </section>
     </main>

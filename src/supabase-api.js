@@ -126,6 +126,10 @@ function buildDiagnosticPayload({
 
     recommendations:
       result.recommendations,
+
+    final_considerations:
+      result.final_considerations ||
+      null,
   };
 }
 
@@ -329,6 +333,7 @@ export async function listarDiagnosticos({
     "maturity_level",
     "answers",
     "recommendations",
+    "final_considerations",
     "created_at",
     "updated_at",
     "created_by",
