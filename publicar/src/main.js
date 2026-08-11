@@ -27,6 +27,30 @@ const APP_SCREENS = [
 
 const PAGE_SIZE = 8;
 
+const EMPLOYEE_COUNT_OPTIONS = [
+  "1-5",
+  "6-15",
+  "16-30",
+  "31-50",
+  "51-100",
+  "100+",
+];
+
+const SEGMENT_OPTIONS = [
+  "Tecnologia",
+  "Serviços",
+  "Comércio e Varejo",
+  "Indústria",
+  "Saúde",
+  "Educação",
+  "Financeiro e Contábil",
+  "Jurídico",
+  "Construção e Engenharia",
+  "Logística",
+  "Agronegócio",
+  "Outros",
+];
+
 const SAO_PAULO_DATE_FORMATTER =
   new Intl.DateTimeFormat(
     "pt-BR",
@@ -52,6 +76,7 @@ const emptyState = () => ({
   completedAt: null,
 
   reviewRecommendations: [],
+  reviewRecommendationsInitialized: false,
   finalConsiderations: "",
 });
 
@@ -339,13 +364,24 @@ function severityRank(severity) {
   }[severity] ?? 0;
 }
 
+function severityLabel(
+  severity
+) {
+  return {
+    critical: "Crítica",
+    high: "Alta",
+    medium: "Média",
+    low: "Baixa",
+  }[severity] || "Média";
+}
+
 function printReport() {
   const report =
     element("reportContent");
 
   if (!report) {
     alert(
-      "Não foi possível localizar o relatório."
+      "Não foi possível localizar o diagnóstico."
     );
     return;
   }
@@ -364,6 +400,12 @@ function printReport() {
     return;
   }
 
+  const baseUrl =
+  new URL(
+    ".",
+    window.location.href
+  ).href;
+
   const reportHtml =
     report.innerHTML;
 
@@ -374,13 +416,15 @@ function printReport() {
       <head>
         <meta charset="UTF-8">
 
+        <base href="${baseUrl}">
+
         <meta
           name="viewport"
           content="width=device-width, initial-scale=1"
         >
 
         <title>
-          Relatório de Segurança Digital
+          Diagnóstico de Segurança Digital
         </title>
 
         <style>
@@ -473,22 +517,6 @@ function printReport() {
 
             break-inside:
               avoid;
-          }
-
-          .report-brand {
-            color:
-              #ffffff;
-
-            font-size:
-              22pt;
-
-            font-weight:
-              800;
-          }
-
-          .report-brand span {
-            color:
-              #fe7d53;
           }
 
           .badge {
@@ -886,6 +914,21 @@ function printReport() {
             }
           }
 
+          .report-logo-area {
+            display: flex;
+            align-items: center;
+          }
+
+          .report-logo {
+            display: block;
+
+            width: auto;
+            height: 12mm;
+            max-width: 48mm;
+
+            object-fit: contain;
+          }
+
         </style>
       </head>
 
@@ -1065,11 +1108,15 @@ function buildResult() {
     .slice(0, 10);
 
   const recommendations =
-    Array.isArray(
-      state.reviewRecommendations
-    ) &&
-    state.reviewRecommendations.length
-      ? state.reviewRecommendations
+    state
+      .reviewRecommendationsInitialized
+      ? (
+          Array.isArray(
+            state.reviewRecommendations
+          )
+            ? state.reviewRecommendations
+            : []
+        )
           .map((reviewed) => {
             const base =
               baseRecommendations.find(
@@ -1146,6 +1193,7 @@ function buildResult() {
       }
     }
   }
+  
 
   return {
     global,
@@ -1281,6 +1329,13 @@ function renderSection() {
             value:
               button.dataset.v,
           };
+
+          state.reviewRecommendations =
+            [];
+
+          state
+            .reviewRecommendationsInitialized =
+            false;
 
           saveState();
           renderSection();
@@ -1602,14 +1657,28 @@ function renderReviewRecommendations() {
     return;
   }
 
-  const result =
-    buildResult();
+  if (
+    !state
+      .reviewRecommendationsInitialized
+  ) {
+    const result =
+      buildResult();
+
+    state.reviewRecommendations =
+      structuredClone(
+        result.recommendations || []
+      );
+
+    state
+      .reviewRecommendationsInitialized =
+      true;
+
+    saveState();
+  }
 
   const recommendations =
-    result.recommendations || [];
-
-  state.reviewRecommendations =
-    recommendations;
+    state.reviewRecommendations ||
+    [];
 
   if (!recommendations.length) {
     container.innerHTML = `
@@ -1643,7 +1712,10 @@ function renderReviewRecommendations() {
           ).trim();
 
         return `
-          <article class="rec">
+          <article
+            class="rec"
+            data-recommendation-card="${index}"
+          >
             <div class="rec-head">
               <small>
                 Prioridade ${index + 1}
@@ -1656,8 +1728,10 @@ function renderReviewRecommendations() {
                 )}"
               >
                 ${escapeHtml(
-                  recommendation.severity ||
-                  "medium"
+                  severityLabel(
+                    recommendation.severity ||
+                    "medium"
+                  )
                 )}
               </span>
             </div>
@@ -1693,27 +1767,394 @@ function renderReviewRecommendations() {
             }
 
             ${
-              suggestedDeadline
-                ? `
-                  <div class="recommendation-deadline">
-                    <span>
-                      Prazo sugerido
-                    </span>
+            suggestedDeadline
+              ? `
+                <div class="recommendation-deadline">
+                  <span>
+                    Prazo sugerido
+                  </span>
 
-                    <strong>
-                      ${escapeHtml(
-                        suggestedDeadline
-                      )}
-                    </strong>
-                  </div>
-                `
-                : ""
-            }
+                  <strong>
+                    ${escapeHtml(
+                      suggestedDeadline
+                    )}
+                  </strong>
+                </div>
+              `
+              : ""
+          }
+
+          <div class="recommendation-actions">
+            <button
+              type="button"
+              class="btn btn-secondary btn-small"
+              data-edit-recommendation="${index}"
+            >
+              Editar
+            </button>
+
+            <button
+              type="button"
+              class="btn btn-danger btn-small"
+              data-delete-recommendation="${index}"
+            >
+              Excluir
+            </button>
+          </div>
+
           </article>
         `;
       }
     )
     .join("");
+
+    bindRecommendationActions();
+}
+
+function editRecommendation(
+  index
+) {
+  const recommendation =
+    state.reviewRecommendations[
+      index
+    ];
+
+  if (!recommendation) {
+    return;
+  }
+
+  const container =
+    element(
+      "reviewRecommendationsPreview"
+    );
+
+  const card =
+    container?.querySelector(
+      `[data-recommendation-card="${index}"]`
+    );
+
+  if (!card) {
+    return;
+  }
+
+  card.innerHTML = `
+    <div class="recommendation-editor">
+      <div class="recommendation-editor-field">
+        <label>
+          Título
+        </label>
+
+        <input
+          type="text"
+          data-rec-title
+          value="${escapeHtml(
+            recommendation.title || ""
+          )}"
+        >
+      </div>
+
+      <div class="recommendation-editor-field">
+        <label>
+          Severidade
+        </label>
+
+        <select data-rec-severity>
+          <option
+            value="low"
+            ${
+              recommendation.severity ===
+              "low"
+                ? "selected"
+                : ""
+            }
+          >
+            Baixa
+          </option>
+
+          <option
+            value="medium"
+            ${
+              recommendation.severity ===
+              "medium"
+                ? "selected"
+                : ""
+            }
+          >
+            Média
+          </option>
+
+          <option
+            value="high"
+            ${
+              recommendation.severity ===
+              "high"
+                ? "selected"
+                : ""
+            }
+          >
+            Alta
+          </option>
+
+          <option
+            value="critical"
+            ${
+              recommendation.severity ===
+              "critical"
+                ? "selected"
+                : ""
+            }
+          >
+            Crítica
+          </option>
+        </select>
+      </div>
+
+      <div class="recommendation-editor-field">
+        <label>
+          Recomendação
+        </label>
+
+        <textarea
+          data-rec-description
+          rows="4"
+        >${escapeHtml(
+          recommendation.description || ""
+        )}</textarea>
+      </div>
+
+      <div class="recommendation-editor-field">
+        <label>
+          Impacto para o negócio
+        </label>
+
+        <textarea
+          data-rec-impact
+          rows="3"
+        >${escapeHtml(
+          recommendation.businessImpact || ""
+        )}</textarea>
+      </div>
+
+      <div class="recommendation-editor-field">
+        <label>
+          Prazo sugerido
+        </label>
+
+        <input
+          type="text"
+          data-rec-deadline
+          value="${escapeHtml(
+            recommendation.suggestedDeadline ||
+            ""
+          )}"
+          placeholder="Ex.: Até 30 dias"
+        >
+      </div>
+
+      <div class="recommendation-editor-actions">
+        <button
+          type="button"
+          class="btn btn-primary btn-small"
+          data-save-recommendation
+        >
+          Salvar alterações
+        </button>
+
+        <button
+          type="button"
+          class="btn btn-secondary btn-small"
+          data-cancel-recommendation
+        >
+          Cancelar
+        </button>
+      </div>
+    </div>
+  `;
+
+  card
+    .querySelector(
+      "[data-save-recommendation]"
+    )
+    ?.addEventListener(
+      "click",
+      () => {
+        const title =
+          card
+            .querySelector(
+              "[data-rec-title]"
+            )
+            ?.value.trim() ||
+          "";
+
+        const description =
+          card
+            .querySelector(
+              "[data-rec-description]"
+            )
+            ?.value.trim() ||
+          "";
+
+        if (
+          !title ||
+          !description
+        ) {
+          alert(
+            "Informe o título e a recomendação."
+          );
+
+          return;
+        }
+
+        state.reviewRecommendations[
+          index
+        ] = {
+          ...recommendation,
+
+          title,
+
+          description,
+
+          severity:
+            card.querySelector(
+              "[data-rec-severity]"
+            )?.value ||
+            "medium",
+
+          businessImpact:
+            card
+              .querySelector(
+                "[data-rec-impact]"
+              )
+              ?.value.trim() ||
+            "",
+
+          suggestedDeadline:
+            card
+              .querySelector(
+                "[data-rec-deadline]"
+              )
+              ?.value.trim() ||
+            "",
+        };
+
+        state
+          .reviewRecommendationsInitialized =
+          true;
+
+        saveState();
+
+        resetReviewApproval();
+
+        renderReviewRecommendations();
+
+        setStatus(
+          "Recomendação atualizada.",
+          "success"
+        );
+      }
+    );
+
+  card
+    .querySelector(
+      "[data-cancel-recommendation]"
+    )
+    ?.addEventListener(
+      "click",
+      renderReviewRecommendations
+    );
+}
+
+function deleteRecommendation(
+  index
+) {
+  const recommendation =
+    state.reviewRecommendations[
+      index
+    ];
+
+  if (!recommendation) {
+    return;
+  }
+
+  const confirmed =
+    confirm(
+      `Excluir a recomendação "${recommendation.title}"?`
+    );
+
+  if (!confirmed) {
+    return;
+  }
+
+  state.reviewRecommendations.splice(
+    index,
+    1
+  );
+
+  state
+    .reviewRecommendationsInitialized =
+    true;
+
+  saveState();
+
+  resetReviewApproval();
+
+  renderReviewRecommendations();
+
+  setStatus(
+    "Recomendação excluída.",
+    "success"
+  );
+}
+
+function bindRecommendationActions() {
+  const container =
+    element(
+      "reviewRecommendationsPreview"
+    );
+
+  if (!container) {
+    return;
+  }
+
+  container
+    .querySelectorAll(
+      "[data-edit-recommendation]"
+    )
+    .forEach(
+      (button) => {
+        button.addEventListener(
+          "click",
+          () => {
+            editRecommendation(
+              Number(
+                button.dataset
+                  .editRecommendation
+              )
+            );
+          }
+        );
+      }
+    );
+
+  container
+    .querySelectorAll(
+      "[data-delete-recommendation]"
+    )
+    .forEach(
+      (button) => {
+        button.addEventListener(
+          "click",
+          () => {
+            deleteRecommendation(
+              Number(
+                button.dataset
+                  .deleteRecommendation
+              )
+            );
+          }
+        );
+      }
+    );
 }
 
 async function reviewRecommendationsWithAi() {
@@ -1744,11 +2185,16 @@ async function reviewRecommendationsWithAi() {
         buildAiDiagnosticPayload()
       );
 
-    state.reviewRecommendations =
-      recommendations;
+      state.reviewRecommendations =
+        recommendations;
 
-    saveState();
-    renderReviewRecommendations();
+      state
+        .reviewRecommendationsInitialized =
+        true;
+
+      saveState();
+
+      renderReviewRecommendations();
 
     const approval =
       element(
@@ -2138,7 +2584,7 @@ function renderReview() {
 
   if (unknown) {
     messages.push(
-      `${unknown} resposta(s) marcada(s) como “Não sei responder”.`
+      `${unknown} resposta(s) marcada(s) como “Não sabe responder”.`
     );
   }
 
@@ -2433,7 +2879,7 @@ function renderStoredResult(
 
   const details = [
     [
-      "Status do relatório",
+      "Status do diagnóstico",
       isApproved
         ? "Aprovado"
         : "Em revisão",
@@ -2626,7 +3072,9 @@ function renderStoredResult(
                   )}"
                 >
                   ${escapeHtml(
-                    severity
+                    severityLabel(
+                      severity
+                    )
                   )}
                 </span>
               </div>
@@ -3154,7 +3602,7 @@ function setReportPreviewMode(
     toolbarTitle.textContent =
       enabled
         ? "Pré-visualização não salva"
-        : "Relatório de Segurança Digital";
+        : "Diagnóstico de Segurança Digital";
   }
 
   [
@@ -3239,8 +3687,11 @@ function validateDiagnosticForReport() {
       client.contactEmail || ""
     ).trim();
 
-  if (
-    email &&
+  if (!email) {
+    errors.push(
+      "Informe o e-mail do contato."
+    );
+  } else if (
     !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
       email
     )
@@ -3250,22 +3701,52 @@ function validateDiagnosticForReport() {
     );
   }
 
-  const employeeCount =
-    String(
-      client.employeeCount || ""
-    ).trim();
+  const phone =
+  String(
+    client.contactPhone || ""
+  ).trim();
 
-  if (
-    employeeCount &&
-    (
-      !Number.isInteger(
-        Number(employeeCount)
-      ) ||
-      Number(employeeCount) < 1
+  if (!phone) {
+    errors.push(
+      "Informe o telefone do contato."
+    );
+  }
+
+  const employeeCount =
+  String(
+    client.employeeCount || ""
+  ).trim();
+
+  if (!employeeCount) {
+    errors.push(
+      "Selecione o número de colaboradores."
+    );
+  } else if (
+    !EMPLOYEE_COUNT_OPTIONS.includes(
+      employeeCount
     )
   ) {
     errors.push(
-      "O número de colaboradores deve ser maior que zero."
+      "Selecione uma faixa válida de colaboradores."
+    );
+  }
+
+  const segment =
+  String(
+    client.segment || ""
+  ).trim();
+
+  if (!segment) {
+    errors.push(
+      "Selecione o segmento da empresa."
+    );
+  } else if (
+    !SEGMENT_OPTIONS.includes(
+      segment
+    )
+  ) {
+    errors.push(
+      "Selecione um segmento válido."
     );
   }
 
@@ -3289,7 +3770,7 @@ function validateDiagnosticForReport() {
 
   if (unknownCount) {
     warnings.push(
-      `${unknownCount} resposta(s) foram marcadas como “Não sei responder”.`
+      `${unknownCount} resposta(s) foram marcadas como “Não sabe responder”.`
     );
   }
 

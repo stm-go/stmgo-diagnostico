@@ -381,7 +381,7 @@ function printReport() {
 
   if (!report) {
     alert(
-      "Não foi possível localizar o relatório."
+      "Não foi possível localizar o diagnóstico."
     );
     return;
   }
@@ -424,7 +424,7 @@ function printReport() {
         >
 
         <title>
-          Relatório de Segurança Digital
+          Diagnóstico de Segurança Digital
         </title>
 
         <style>
@@ -2584,7 +2584,7 @@ function renderReview() {
 
   if (unknown) {
     messages.push(
-      `${unknown} resposta(s) marcada(s) como “Não sei responder”.`
+      `${unknown} resposta(s) marcada(s) como “Não sabe responder”.`
     );
   }
 
@@ -2879,7 +2879,7 @@ function renderStoredResult(
 
   const details = [
     [
-      "Status do relatório",
+      "Status do diagnóstico",
       isApproved
         ? "Aprovado"
         : "Em revisão",
@@ -3602,7 +3602,7 @@ function setReportPreviewMode(
     toolbarTitle.textContent =
       enabled
         ? "Pré-visualização não salva"
-        : "Relatório de Segurança Digital";
+        : "Diagnóstico de Segurança Digital";
   }
 
   [
@@ -3770,7 +3770,7 @@ function validateDiagnosticForReport() {
 
   if (unknownCount) {
     warnings.push(
-      `${unknownCount} resposta(s) foram marcadas como “Não sei responder”.`
+      `${unknownCount} resposta(s) foram marcadas como “Não sabe responder”.`
     );
   }
 

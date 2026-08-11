@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "stmgo-security-diagnostic-v1",
   "approvalStatus": "pending-approval",
-  "name": "Diagnóstico de Segurança Digital stmgo",
+  "name": "Diagnóstico de Segurança Digital",
   "description": "Questionário inicial baseado no modelo atual da stmgo.",
   "answerOptions": [
     {
@@ -25,7 +25,7 @@
     },
     {
       "id": "unknown",
-      "label": "Não sei responder",
+      "label": "Não sabe responder",
       "score": null,
       "requiresReview": true
     }

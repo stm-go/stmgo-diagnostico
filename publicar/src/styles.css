@@ -23,7 +23,7 @@ input:focus, textarea:focus, select:focus, button:focus-visible { outline: 3px s
 .topbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 24px; }
 .topbar-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
 .brand { font-size: 26px; font-weight: 900; }
-.brand span { background: linear-gradient(135deg, var(--orange), var(--pink)); -webkit-background-clip: text; color: transparent; }
+.brand span { background: linear-gradient(135deg, var(--orange), var(--pink)); background-clip: text; -webkit-background-clip: text; color: transparent; }
 .badge { display: inline-block; font-size: 12px; color: var(--muted); background: #fff; border: 1px solid var(--border); padding: 8px 12px; border-radius: 999px; }
 
 .card { background: #fff; border: 1px solid #eaecf0; border-radius: 20px; padding: 28px; box-shadow: 0 8px 24px rgba(7, 34, 73, .06); }
@@ -56,12 +56,84 @@ p { line-height: 1.6; }
 
 .progress { height: 8px; background: #e4e7ec; border-radius: 99px; overflow: hidden; margin: 16px 0 28px; }
 .progress > div { height: 100%; background: linear-gradient(135deg, var(--orange), var(--pink)); transition: width .2s ease; }
-.question { padding: 20px 0; border-top: 1px solid #eee; }
-.question:first-of-type { border-top: 0; }
-.question-title { font-weight: 750; font-size: 17px; margin-bottom: 12px; }
-.options { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-.option { padding: 12px; border: 1px solid #d0d5dd; background: #fff; border-radius: 10px; color: #344054; font-weight: 650; }
-.option.selected { border-color: var(--orange); background: #fff3ee; color: #9f2900; }
+.question {
+  padding: 26px 0;
+
+  border-top:
+    1px solid #eaecf0;
+}
+
+.question:first-of-type {
+  border-top: 0;
+}
+
+.question-title {
+  max-width: 900px;
+
+  margin-bottom: 16px;
+
+  color: var(--navy);
+
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1.4;
+}
+
+.options {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      4,
+      minmax(0, 1fr)
+    );
+
+  gap: 8px;
+}
+
+.option {
+  min-height: 40px;
+
+  padding: 9px 12px;
+
+  border:
+    1px solid #d0d5dd;
+
+  border-radius: 9px;
+
+  background: #fff;
+  color: #344054;
+
+  font-size: 14px;
+  font-weight: 650;
+
+  transition:
+    border-color .15s ease,
+    background .15s ease,
+    transform .15s ease;
+}
+
+.option:hover {
+  border-color:
+    #98a2b3;
+
+  background:
+    #f9fafb;
+}
+
+.option.selected {
+  border-color:
+    var(--orange);
+
+  background:
+    #fff3ee;
+
+  color:
+    #9f2900;
+
+  font-weight:
+    750;
+}
 
 textarea, input, select { width: 100%; border: 1px solid #d0d5dd; border-radius: 10px; padding: 12px; color: var(--text); background: #fff; }
 textarea { min-height: 84px; margin-top: 10px; resize: vertical; }
@@ -85,9 +157,8 @@ label { display: block; font-size: 13px; font-weight: 700; color: #475467; margi
 
 .report-card { padding: 36px; }
 .report-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-bottom: 20px; border-bottom: 1px solid #eaecf0; }
-.report-brand { font-size: 24px; }
 .score-main { text-align: center; padding: 34px 20px; }
-.score-number { font-size: 76px; font-weight: 900; line-height: 1; background: linear-gradient(135deg, var(--orange), var(--pink)); -webkit-background-clip: text; color: transparent; }
+.score-number { font-size: 76px; font-weight: 900; line-height: 1; background: linear-gradient(135deg, var(--orange), var(--pink)); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .level { display: inline-block; margin-top: 12px; padding: 8px 16px; border-radius: 999px; background: #eef2ff; font-weight: 800; }
 .report-section { border-top: 1px solid #eaecf0; padding-top: 28px; margin-top: 28px; }
 .details-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
@@ -669,15 +740,6 @@ button:disabled,
   align-items: center;
   justify-content: space-between;
   gap: 18px;
-}
-
-.report-brand {
-  color: #ffffff;
-  font-size: 34px;
-}
-
-.report-brand span {
-  color: #fe7d53;
 }
 
 .report-confidential {
@@ -1703,3 +1765,165 @@ button:disabled,
     print-color-adjust: exact !important;
   }
 }
+
+/* =========================================================
+   EDIÇÃO DAS RECOMENDAÇÕES
+   ========================================================= */
+
+.recommendation-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+
+  margin-top: 16px;
+  padding-top: 14px;
+
+  border-top: 1px solid #e4e7ec;
+}
+
+.recommendation-actions .btn {
+  min-height: 34px;
+  padding: 7px 12px;
+
+  font-size: 12px;
+}
+
+/* Editor dentro do card */
+
+.recommendation-editor {
+  display: grid;
+  gap: 16px;
+}
+
+.recommendation-editor-field {
+  display: grid;
+  gap: 7px;
+}
+
+.recommendation-editor-field label {
+  color: #072249;
+
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.recommendation-editor-field input,
+.recommendation-editor-field select,
+.recommendation-editor-field textarea {
+  width: 100%;
+
+  padding: 11px 12px;
+
+  border: 1px solid #d0d5dd;
+  border-radius: 9px;
+
+  background: #ffffff;
+  color: #344054;
+
+  font: inherit;
+  font-size: 13px;
+}
+
+.recommendation-editor-field textarea {
+  resize: vertical;
+
+  line-height: 1.55;
+}
+
+.recommendation-editor-field input:focus,
+.recommendation-editor-field select:focus,
+.recommendation-editor-field textarea:focus {
+  outline: none;
+
+  border-color: #fe7d53;
+
+  box-shadow:
+    0 0 0 3px
+    rgba(254, 125, 83, 0.12);
+}
+
+.recommendation-editor-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  margin-top: 4px;
+}
+
+/* Mobile */
+
+@media (max-width: 680px) {
+  .recommendation-actions,
+  .recommendation-editor-actions {
+    justify-content: stretch;
+  }
+
+  .recommendation-actions .btn,
+  .recommendation-editor-actions .btn {
+    flex: 1;
+  }
+}
+
+/* Os controles internos nunca aparecem no PDF */
+
+@media print {
+  .recommendation-actions,
+  .recommendation-editor-actions {
+    display: none !important;
+  }
+}
+
+/* =========================================================
+   LOGO OFICIAL STMGO
+   ========================================================= */
+
+.app-logo {
+  display: flex;
+  align-items: center;
+}
+
+.app-logo img {
+  display: block;
+
+  width: auto;
+  height: 34px;
+
+  object-fit: contain;
+}
+
+.report-logo-area {
+  display: flex;
+  align-items: center;
+}
+
+.report-logo {
+  display: block;
+
+  width: auto;
+  height: 42px;
+  max-width: 180px;
+
+  object-fit: contain;
+}
+
+@media (max-width: 680px) {
+  .app-logo img {
+    height: 29px;
+  }
+
+  .report-logo {
+    height: 36px;
+  }
+}
+
+@media print {
+  .report-logo {
+    width: auto;
+    height: 12mm;
+    max-width: 48mm;
+  }
+}
+

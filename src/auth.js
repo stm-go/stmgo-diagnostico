@@ -84,7 +84,37 @@ function showLogin() {
   );
 }
 
-function showApplication(session) {
+function updateAuthenticatedUI(
+  session
+) {
+  document
+    .getElementById(
+      "sessionControls"
+    )
+    ?.classList.remove(
+      "hidden"
+    );
+
+  const loggedUser =
+    document.getElementById(
+      "loggedUser"
+    );
+
+  if (loggedUser) {
+    loggedUser.textContent =
+      session?.user?.email ||
+      "Usuário autenticado";
+  }
+
+  setAuthStatus(
+    "Usuário autenticado.",
+    "success"
+  );
+}
+
+function showApplication(
+  session
+) {
   hideAllScreens();
 
   const homeScreen =
@@ -108,31 +138,8 @@ function showApplication(session) {
     "hidden"
   );
 
-  document
-    .getElementById(
-      "sessionControls"
-    )
-    ?.classList.remove("hidden");
-
-  const loggedUser =
-    document.getElementById(
-      "loggedUser"
-    );
-
-  if (loggedUser) {
-    loggedUser.textContent =
-      session?.user?.email ||
-      "Usuário autenticado";
-  }
-
-  setAuthStatus(
-    "Usuário autenticado.",
-    "success"
-  );
-
-  console.log(
-    "Tela inicial exibida.",
-    session?.user?.email
+  updateAuthenticatedUI(
+    session
   );
 }
 
@@ -354,15 +361,10 @@ supabaseClient.auth
         return;
       }
 
-      if (
-        session &&
-        [
-          "SIGNED_IN",
-          "INITIAL_SESSION",
-          "TOKEN_REFRESHED",
-        ].includes(event)
-      ) {
-        showApplication(session);
+      if (session) {
+        updateAuthenticatedUI(
+          session
+        );
       }
     }
   );
