@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
-  "questionnaireStatus": "pending-approval to 2",
   "id": "stmgo-security-diagnostic-v1",
+  "approvalStatus": "pending-approval",
   "name": "Diagnóstico de Segurança Digital stmgo",
   "description": "Questionário inicial baseado no modelo atual da stmgo.",
   "answerOptions": [

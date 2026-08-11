@@ -99,6 +99,9 @@ function buildDiagnosticPayload({
     segment:
       client.segment || null,
 
+    consultant_name:
+      client.consultantName || null,
+
     client_notes:
       client.clientNotes || null,
 
@@ -129,6 +132,35 @@ function buildDiagnosticPayload({
 
     final_considerations:
       result.final_considerations ||
+      null,
+
+    questionnaire_id:
+      result.questionnaire?.id ||
+      null,
+
+    questionnaire_schema_version:
+      result.questionnaire
+        ?.schemaVersion ||
+      null,
+
+    questionnaire_status:
+      result.questionnaire
+        ?.status ||
+      null,
+
+    approval_status:
+      result.approval
+        ?.status ||
+      "draft",
+
+    approved_at:
+      result.approval
+        ?.approvedAt ||
+      null,
+
+    approved_by:
+      result.approval
+        ?.approvedBy ||
       null,
   };
 }
@@ -323,6 +355,7 @@ export async function listarDiagnosticos({
     "contact_phone",
     "employee_count",
     "segment",
+    "consultant_name",
     "client_notes",
     "status",
     "global_score",
@@ -334,6 +367,12 @@ export async function listarDiagnosticos({
     "answers",
     "recommendations",
     "final_considerations",
+    "questionnaire_id",
+    "questionnaire_schema_version",
+    "questionnaire_status",
+    "approval_status",
+    "approved_at",
+    "approved_by",
     "created_at",
     "updated_at",
     "created_by",

@@ -27,6 +27,45 @@ const APP_SCREENS = [
 
 const PAGE_SIZE = 8;
 
+const EMPLOYEE_COUNT_OPTIONS = [
+  "1-5",
+  "6-15",
+  "16-30",
+  "31-50",
+  "51-100",
+  "100+",
+];
+
+const SEGMENT_OPTIONS = [
+  "Tecnologia",
+  "Serviços",
+  "Comércio e Varejo",
+  "Indústria",
+  "Saúde",
+  "Educação",
+  "Financeiro e Contábil",
+  "Jurídico",
+  "Construção e Engenharia",
+  "Logística",
+  "Agronegócio",
+  "Outros",
+];
+
+const SAO_PAULO_DATE_FORMATTER =
+  new Intl.DateTimeFormat(
+    "pt-BR",
+    {
+      timeZone:
+        "America/Sao_Paulo",
+
+      dateStyle:
+        "short",
+
+      timeStyle:
+        "short",
+    }
+  );
+
 const emptyState = () => ({
   sectionIndex: 0,
   answers: {},
@@ -37,6 +76,7 @@ const emptyState = () => ({
   completedAt: null,
 
   reviewRecommendations: [],
+  reviewRecommendationsInitialized: false,
   finalConsiderations: "",
 });
 
@@ -146,13 +186,19 @@ function formatDate(value) {
     return "Data não informada";
   }
 
-  const date = new Date(value);
+  const date =
+    new Date(value);
 
-  return Number.isNaN(
-    date.getTime()
-  )
-    ? "Data não informada"
-    : date.toLocaleString("pt-BR");
+  if (
+    Number.isNaN(
+      date.getTime()
+    )
+  ) {
+    return "Data não informada";
+  }
+
+  return SAO_PAULO_DATE_FORMATTER
+    .format(date);
 }
 
 function answerLabel(value) {
@@ -318,6 +364,596 @@ function severityRank(severity) {
   }[severity] ?? 0;
 }
 
+function severityLabel(
+  severity
+) {
+  return {
+    critical: "Crítica",
+    high: "Alta",
+    medium: "Média",
+    low: "Baixa",
+  }[severity] || "Média";
+}
+
+function printReport() {
+  const report =
+    element("reportContent");
+
+  if (!report) {
+    alert(
+      "Não foi possível localizar o relatório."
+    );
+    return;
+  }
+
+  const printWindow =
+    window.open(
+      "",
+      "_blank",
+      "width=1000,height=800"
+    );
+
+  if (!printWindow) {
+    alert(
+      "O navegador bloqueou a janela de impressão."
+    );
+    return;
+  }
+
+  const baseUrl =
+  new URL(
+    ".",
+    window.location.href
+  ).href;
+
+  const reportHtml =
+    report.innerHTML;
+
+  printWindow.document.write(`
+    <!DOCTYPE html>
+
+    <html lang="pt-BR">
+      <head>
+        <meta charset="UTF-8">
+
+        <base href="${baseUrl}">
+
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1"
+        >
+
+        <title>
+          Relatório de Segurança Digital
+        </title>
+
+        <style>
+
+          @page {
+            size: A4;
+            margin:
+              14mm 12mm
+              16mm 12mm;
+          }
+
+          * {
+            box-sizing:
+              border-box;
+          }
+
+          html,
+          body {
+            margin: 0;
+            padding: 0;
+
+            width: auto;
+            height: auto;
+
+            overflow: visible;
+
+            background: #ffffff;
+
+            color: #344054;
+
+            font-family:
+              Arial,
+              Helvetica,
+              sans-serif;
+
+            -webkit-print-color-adjust:
+              exact;
+
+            print-color-adjust:
+              exact;
+          }
+
+          body {
+            font-size: 10pt;
+            line-height: 1.5;
+          }
+
+          .client-report,
+          .report-card {
+            width: 100%;
+            max-width: none;
+
+            margin: 0;
+            padding: 0;
+
+            height: auto;
+            min-height: 0;
+            max-height: none;
+
+            overflow: visible;
+
+            border: 0;
+            box-shadow: none;
+          }
+
+          /* CABEÇALHO */
+
+          .report-header {
+            display: flex;
+            align-items: center;
+            justify-content:
+              space-between;
+
+            gap: 20px;
+
+            margin-bottom: 8mm;
+
+            padding:
+              7mm 8mm;
+
+            background:
+              #072249;
+
+            color:
+              #ffffff;
+
+            border-bottom:
+              4px solid
+              #fe7d53;
+
+            break-inside:
+              avoid;
+          }
+
+          .badge {
+            padding:
+              5px 9px;
+
+            border:
+              1px solid
+              rgba(
+                255,
+                255,
+                255,
+                0.35
+              );
+
+            border-radius:
+              999px;
+
+            color:
+              #ffffff;
+
+            font-size:
+              8pt;
+          }
+
+          /* SCORE PRINCIPAL */
+
+          .score-main {
+            margin-bottom:
+              8mm;
+
+            padding:
+              6mm;
+
+            text-align:
+              center;
+
+            break-inside:
+              avoid;
+          }
+
+          .score-main h1 {
+            margin:
+              0 0 3mm;
+
+            color:
+              #072249;
+
+            font-size:
+              22pt;
+          }
+
+          .score-number {
+            margin:
+              3mm 0;
+
+            color:
+              #9f0066;
+
+            font-size:
+              42pt;
+
+            font-weight:
+              800;
+          }
+
+          .level {
+            display:
+              inline-block;
+
+            padding:
+              5px 10px;
+
+            border-radius:
+              999px;
+
+            background:
+              #f5f6f8;
+
+            color:
+              #072249;
+
+            font-weight:
+              700;
+          }
+
+          /* SEÇÕES */
+
+          .report-section {
+            display:
+              block;
+
+            width:
+              100%;
+
+            margin:
+              0 0 8mm;
+
+            padding:
+              0;
+
+            height:
+              auto;
+
+            overflow:
+              visible;
+
+            break-inside:
+              auto;
+          }
+
+          .report-section h2 {
+            margin:
+              0 0 4mm;
+
+            padding-bottom:
+              2mm;
+
+            border-bottom:
+              1px solid
+              #e4e7ec;
+
+            color:
+              #072249;
+
+            font-size:
+              14pt;
+
+            break-after:
+              avoid;
+          }
+
+          /* GRIDS */
+
+          .details-grid,
+          .score-grid,
+          .summary-grid {
+            display:
+              grid;
+
+            grid-template-columns:
+              repeat(
+                2,
+                minmax(0, 1fr)
+              );
+
+            gap:
+              4mm;
+
+            margin-bottom:
+              5mm;
+          }
+
+          .score-grid {
+            grid-template-columns:
+              repeat(
+                4,
+                minmax(0, 1fr)
+              );
+          }
+
+          .detail-card,
+          .score-card,
+          .summary-card {
+            padding:
+              4mm;
+
+            border:
+              1px solid
+              #e4e7ec;
+
+            border-radius:
+              8px;
+
+            background:
+              #ffffff;
+
+            break-inside:
+              avoid;
+          }
+
+          .score-card {
+            text-align:
+              center;
+          }
+
+          .score-card strong {
+            display:
+              block;
+
+            color:
+              #072249;
+
+            font-size:
+              18pt;
+          }
+
+          /* RECOMENDAÇÕES */
+
+          #recommendations {
+            display:
+              block;
+          }
+
+          .rec {
+            display:
+              block;
+
+            width:
+              100%;
+
+            margin:
+              0 0 5mm;
+
+            padding:
+              5mm;
+
+            border:
+              1px solid
+              #e4e7ec;
+
+            border-left:
+              4px solid
+              #fe7d53;
+
+            border-radius:
+              8px;
+
+            background:
+              #ffffff;
+
+            height:
+              auto;
+
+            max-height:
+              none;
+
+            overflow:
+              visible;
+
+            break-inside:
+              avoid;
+          }
+
+          .rec h3 {
+            margin:
+              0 0 2mm;
+
+            color:
+              #072249;
+
+            font-size:
+              11pt;
+          }
+
+          .rec p {
+            margin:
+              0 0 2mm;
+
+            font-size:
+              9.5pt;
+
+            line-height:
+              1.5;
+          }
+
+          .recommendation-detail {
+            margin-top:
+              3mm;
+
+            padding:
+              3mm;
+
+            background:
+              #f8fafc;
+
+            border-radius:
+              6px;
+          }
+
+          .recommendation-deadline {
+            display:
+              flex;
+
+            justify-content:
+              space-between;
+
+            margin-top:
+              3mm;
+
+            padding:
+              3mm;
+
+            background:
+              #fff7f3;
+
+            border-radius:
+              6px;
+          }
+
+          .severity {
+            display:
+              inline-block;
+
+            padding:
+              3px 7px;
+
+            border-radius:
+              999px;
+
+            font-size:
+              7pt;
+
+            font-weight:
+              bold;
+
+            text-transform:
+              uppercase;
+          }
+
+          .severity-critical {
+            background:
+              #fef3f2;
+
+            color:
+              #b42318;
+          }
+
+          .severity-high {
+            background:
+              #fff6ed;
+
+            color:
+              #c4320a;
+          }
+
+          .severity-medium {
+            background:
+              #fffaeb;
+
+            color:
+              #b54708;
+          }
+
+          .severity-low {
+            background:
+              #ecfdf3;
+
+            color:
+              #067647;
+          }
+
+          /* Evita elementos da aplicação */
+
+          button,
+          .report-actions,
+          .no-print {
+            display:
+              none !important;
+          }
+
+          img {
+            max-width:
+              100%;
+          }
+
+          p,
+          li {
+            orphans: 3;
+            widows: 3;
+          }
+
+          @media print {
+
+            html,
+            body {
+              height:
+                auto !important;
+
+              overflow:
+                visible !important;
+            }
+
+            .client-report,
+            .report-card,
+            .report-section {
+              height:
+                auto !important;
+
+              max-height:
+                none !important;
+
+              overflow:
+                visible !important;
+            }
+          }
+
+          .report-logo-area {
+            display: flex;
+            align-items: center;
+          }
+
+          .report-logo {
+            display: block;
+
+            width: auto;
+            height: 12mm;
+            max-width: 48mm;
+
+            object-fit: contain;
+          }
+
+        </style>
+      </head>
+
+      <body>
+
+        <main class="client-report">
+          ${reportHtml}
+        </main>
+
+      </body>
+    </html>
+  `);
+
+  printWindow.document.close();
+
+  printWindow.focus();
+
+  setTimeout(
+    () => {
+      printWindow.print();
+    },
+    400
+  );
+}
+
 function buildResult() {
   const scores =
     CONFIG.sections.map(
@@ -472,11 +1108,15 @@ function buildResult() {
     .slice(0, 10);
 
   const recommendations =
-    Array.isArray(
-      state.reviewRecommendations
-    ) &&
-    state.reviewRecommendations.length
-      ? state.reviewRecommendations
+    state
+      .reviewRecommendationsInitialized
+      ? (
+          Array.isArray(
+            state.reviewRecommendations
+          )
+            ? state.reviewRecommendations
+            : []
+        )
           .map((reviewed) => {
             const base =
               baseRecommendations.find(
@@ -553,6 +1193,7 @@ function buildResult() {
       }
     }
   }
+  
 
   return {
     global,
@@ -565,6 +1206,21 @@ function buildResult() {
       String(
         state.finalConsiderations || ""
       ).trim(),
+
+    questionnaire: {
+      id:
+        CONFIG.id ||
+        "questionnaire-unknown",
+
+      schemaVersion:
+        Number(
+          CONFIG.schemaVersion
+        ) || 1,
+
+      status:
+        CONFIG.approvalStatus ||
+        "pending-approval",
+    },
   };
 }
 
@@ -674,6 +1330,13 @@ function renderSection() {
               button.dataset.v,
           };
 
+          state.reviewRecommendations =
+            [];
+
+          state
+            .reviewRecommendationsInitialized =
+            false;
+
           saveState();
           renderSection();
         }
@@ -732,6 +1395,7 @@ const CLIENT_FIELDS = [
   "contactPhone",
   "employeeCount",
   "segment",
+  "consultantName",
   "clientNotes",
 ];
 
@@ -993,14 +1657,28 @@ function renderReviewRecommendations() {
     return;
   }
 
-  const result =
-    buildResult();
+  if (
+    !state
+      .reviewRecommendationsInitialized
+  ) {
+    const result =
+      buildResult();
+
+    state.reviewRecommendations =
+      structuredClone(
+        result.recommendations || []
+      );
+
+    state
+      .reviewRecommendationsInitialized =
+      true;
+
+    saveState();
+  }
 
   const recommendations =
-    result.recommendations || [];
-
-  state.reviewRecommendations =
-    recommendations;
+    state.reviewRecommendations ||
+    [];
 
   if (!recommendations.length) {
     container.innerHTML = `
@@ -1013,13 +1691,31 @@ function renderReviewRecommendations() {
   }
 
   container.innerHTML =
-    recommendations
-      .map(
-        (
-          recommendation,
-          index
-        ) => `
-          <article class="rec">
+  recommendations
+    .map(
+      (
+        recommendation,
+        index
+      ) => {
+        const businessImpact =
+          String(
+            recommendation
+              .businessImpact ||
+            ""
+          ).trim();
+
+        const suggestedDeadline =
+          String(
+            recommendation
+              .suggestedDeadline ||
+            ""
+          ).trim();
+
+        return `
+          <article
+            class="rec"
+            data-recommendation-card="${index}"
+          >
             <div class="rec-head">
               <small>
                 Prioridade ${index + 1}
@@ -1032,8 +1728,10 @@ function renderReviewRecommendations() {
                 )}"
               >
                 ${escapeHtml(
-                  recommendation.severity ||
-                  "medium"
+                  severityLabel(
+                    recommendation.severity ||
+                    "medium"
+                  )
                 )}
               </span>
             </div>
@@ -1044,15 +1742,419 @@ function renderReviewRecommendations() {
               )}
             </h3>
 
-            <p>
+            <p class="recommendation-description">
               ${escapeHtml(
                 recommendation.description
               )}
             </p>
+
+            ${
+              businessImpact
+                ? `
+                  <div class="recommendation-detail">
+                    <strong>
+                      Impacto para o negócio
+                    </strong>
+
+                    <p>
+                      ${escapeHtml(
+                        businessImpact
+                      )}
+                    </p>
+                  </div>
+                `
+                : ""
+            }
+
+            ${
+            suggestedDeadline
+              ? `
+                <div class="recommendation-deadline">
+                  <span>
+                    Prazo sugerido
+                  </span>
+
+                  <strong>
+                    ${escapeHtml(
+                      suggestedDeadline
+                    )}
+                  </strong>
+                </div>
+              `
+              : ""
+          }
+
+          <div class="recommendation-actions">
+            <button
+              type="button"
+              class="btn btn-secondary btn-small"
+              data-edit-recommendation="${index}"
+            >
+              Editar
+            </button>
+
+            <button
+              type="button"
+              class="btn btn-danger btn-small"
+              data-delete-recommendation="${index}"
+            >
+              Excluir
+            </button>
+          </div>
+
           </article>
-        `
-      )
-      .join("");
+        `;
+      }
+    )
+    .join("");
+
+    bindRecommendationActions();
+}
+
+function editRecommendation(
+  index
+) {
+  const recommendation =
+    state.reviewRecommendations[
+      index
+    ];
+
+  if (!recommendation) {
+    return;
+  }
+
+  const container =
+    element(
+      "reviewRecommendationsPreview"
+    );
+
+  const card =
+    container?.querySelector(
+      `[data-recommendation-card="${index}"]`
+    );
+
+  if (!card) {
+    return;
+  }
+
+  card.innerHTML = `
+    <div class="recommendation-editor">
+      <div class="recommendation-editor-field">
+        <label>
+          Título
+        </label>
+
+        <input
+          type="text"
+          data-rec-title
+          value="${escapeHtml(
+            recommendation.title || ""
+          )}"
+        >
+      </div>
+
+      <div class="recommendation-editor-field">
+        <label>
+          Severidade
+        </label>
+
+        <select data-rec-severity>
+          <option
+            value="low"
+            ${
+              recommendation.severity ===
+              "low"
+                ? "selected"
+                : ""
+            }
+          >
+            Baixa
+          </option>
+
+          <option
+            value="medium"
+            ${
+              recommendation.severity ===
+              "medium"
+                ? "selected"
+                : ""
+            }
+          >
+            Média
+          </option>
+
+          <option
+            value="high"
+            ${
+              recommendation.severity ===
+              "high"
+                ? "selected"
+                : ""
+            }
+          >
+            Alta
+          </option>
+
+          <option
+            value="critical"
+            ${
+              recommendation.severity ===
+              "critical"
+                ? "selected"
+                : ""
+            }
+          >
+            Crítica
+          </option>
+        </select>
+      </div>
+
+      <div class="recommendation-editor-field">
+        <label>
+          Recomendação
+        </label>
+
+        <textarea
+          data-rec-description
+          rows="4"
+        >${escapeHtml(
+          recommendation.description || ""
+        )}</textarea>
+      </div>
+
+      <div class="recommendation-editor-field">
+        <label>
+          Impacto para o negócio
+        </label>
+
+        <textarea
+          data-rec-impact
+          rows="3"
+        >${escapeHtml(
+          recommendation.businessImpact || ""
+        )}</textarea>
+      </div>
+
+      <div class="recommendation-editor-field">
+        <label>
+          Prazo sugerido
+        </label>
+
+        <input
+          type="text"
+          data-rec-deadline
+          value="${escapeHtml(
+            recommendation.suggestedDeadline ||
+            ""
+          )}"
+          placeholder="Ex.: Até 30 dias"
+        >
+      </div>
+
+      <div class="recommendation-editor-actions">
+        <button
+          type="button"
+          class="btn btn-primary btn-small"
+          data-save-recommendation
+        >
+          Salvar alterações
+        </button>
+
+        <button
+          type="button"
+          class="btn btn-secondary btn-small"
+          data-cancel-recommendation
+        >
+          Cancelar
+        </button>
+      </div>
+    </div>
+  `;
+
+  card
+    .querySelector(
+      "[data-save-recommendation]"
+    )
+    ?.addEventListener(
+      "click",
+      () => {
+        const title =
+          card
+            .querySelector(
+              "[data-rec-title]"
+            )
+            ?.value.trim() ||
+          "";
+
+        const description =
+          card
+            .querySelector(
+              "[data-rec-description]"
+            )
+            ?.value.trim() ||
+          "";
+
+        if (
+          !title ||
+          !description
+        ) {
+          alert(
+            "Informe o título e a recomendação."
+          );
+
+          return;
+        }
+
+        state.reviewRecommendations[
+          index
+        ] = {
+          ...recommendation,
+
+          title,
+
+          description,
+
+          severity:
+            card.querySelector(
+              "[data-rec-severity]"
+            )?.value ||
+            "medium",
+
+          businessImpact:
+            card
+              .querySelector(
+                "[data-rec-impact]"
+              )
+              ?.value.trim() ||
+            "",
+
+          suggestedDeadline:
+            card
+              .querySelector(
+                "[data-rec-deadline]"
+              )
+              ?.value.trim() ||
+            "",
+        };
+
+        state
+          .reviewRecommendationsInitialized =
+          true;
+
+        saveState();
+
+        resetReviewApproval();
+
+        renderReviewRecommendations();
+
+        setStatus(
+          "Recomendação atualizada.",
+          "success"
+        );
+      }
+    );
+
+  card
+    .querySelector(
+      "[data-cancel-recommendation]"
+    )
+    ?.addEventListener(
+      "click",
+      renderReviewRecommendations
+    );
+}
+
+function deleteRecommendation(
+  index
+) {
+  const recommendation =
+    state.reviewRecommendations[
+      index
+    ];
+
+  if (!recommendation) {
+    return;
+  }
+
+  const confirmed =
+    confirm(
+      `Excluir a recomendação "${recommendation.title}"?`
+    );
+
+  if (!confirmed) {
+    return;
+  }
+
+  state.reviewRecommendations.splice(
+    index,
+    1
+  );
+
+  state
+    .reviewRecommendationsInitialized =
+    true;
+
+  saveState();
+
+  resetReviewApproval();
+
+  renderReviewRecommendations();
+
+  setStatus(
+    "Recomendação excluída.",
+    "success"
+  );
+}
+
+function bindRecommendationActions() {
+  const container =
+    element(
+      "reviewRecommendationsPreview"
+    );
+
+  if (!container) {
+    return;
+  }
+
+  container
+    .querySelectorAll(
+      "[data-edit-recommendation]"
+    )
+    .forEach(
+      (button) => {
+        button.addEventListener(
+          "click",
+          () => {
+            editRecommendation(
+              Number(
+                button.dataset
+                  .editRecommendation
+              )
+            );
+          }
+        );
+      }
+    );
+
+  container
+    .querySelectorAll(
+      "[data-delete-recommendation]"
+    )
+    .forEach(
+      (button) => {
+        button.addEventListener(
+          "click",
+          () => {
+            deleteRecommendation(
+              Number(
+                button.dataset
+                  .deleteRecommendation
+              )
+            );
+          }
+        );
+      }
+    );
 }
 
 async function reviewRecommendationsWithAi() {
@@ -1083,11 +2185,16 @@ async function reviewRecommendationsWithAi() {
         buildAiDiagnosticPayload()
       );
 
-    state.reviewRecommendations =
-      recommendations;
+      state.reviewRecommendations =
+        recommendations;
 
-    saveState();
-    renderReviewRecommendations();
+      state
+        .reviewRecommendationsInitialized =
+        true;
+
+      saveState();
+
+      renderReviewRecommendations();
 
     const approval =
       element(
@@ -1345,6 +2452,41 @@ function renderReview() {
       </div>
 
       <div class="review-line">
+        <span>Consultor responsável</span>
+
+        <strong>
+          ${escapeHtml(
+            client.consultantName ||
+            "-"
+          )}
+        </strong>
+      </div>
+
+      <div class="review-line">
+        <span>Versão do questionário</span>
+
+        <strong>
+          ${escapeHtml(
+            CONFIG.id ||
+            "Não informada"
+          )}
+        </strong>
+      </div>
+
+      <div class="review-line">
+        <span>Status das perguntas</span>
+
+        <strong>
+          ${
+            CONFIG.approvalStatus ===
+            "approved"
+              ? "Aprovadas"
+              : "Aguardando aprovação"
+          }
+        </strong>
+      </div>
+
+      <div class="review-line">
         <span>Colaboradores</span>
 
         <strong>
@@ -1586,6 +2728,10 @@ function convertSupabaseRecord(
         record.segment ||
         "",
 
+      consultantName:
+        record.consultant_name ||
+        "",
+
       clientNotes:
         record.client_notes ||
         "",
@@ -1604,6 +2750,36 @@ function convertSupabaseRecord(
       finalConsiderations:
         record.final_considerations ||
         "",
+
+      approval: {
+        status:
+          record.approval_status ||
+          "draft",
+
+        approvedAt:
+          record.approved_at ||
+          null,
+
+        approvedBy:
+          record.approved_by ||
+          record.consultant_name ||
+          "",
+      },
+
+      questionnaire: {
+        id:
+          record.questionnaire_id ||
+          "diagnostico-legado",
+
+        schemaVersion:
+          record
+            .questionnaire_schema_version ||
+          1,
+
+        status:
+          record.questionnaire_status ||
+          "legacy",
+      },
 
       scores: [
         {
@@ -1656,6 +2832,13 @@ function renderStoredResult(
     client,
   } = record;
 
+  const approval =
+    result.approval || {};
+
+  const isApproved =
+    approval.status ===
+    "approved";
+
   const finalConsiderations =
   result.finalConsiderations ||
   state.finalConsiderations ||
@@ -1695,6 +2878,31 @@ function renderStoredResult(
     result.level.description;
 
   const details = [
+    [
+      "Status do relatório",
+      isApproved
+        ? "Aprovado"
+        : "Em revisão",
+    ],
+    [
+      "Aprovado por",
+      approval.approvedBy ||
+        client.consultantName ||
+        "-",
+    ],
+    [
+      "Data da aprovação",
+      approval.approvedAt
+        ? formatDate(
+            approval.approvedAt
+          )
+        : "-",
+    ],
+    [
+      "Consultor responsável",
+      client.consultantName ||
+        "-",
+    ],
     [
       "Contato",
       client.contactName ||
@@ -1825,76 +3033,104 @@ function renderStoredResult(
       '<p class="lead">Nenhuma recomendação crítica foi gerada.</p>';
   } else {
     element(
-      "recommendations"
-    ).innerHTML =
-      result.recommendations
-        .map(
-          (
-            recommendation,
-            index
-          ) => {
-            const severity =
-              recommendation.severity ||
-              "medium";
+    "recommendations"
+  ).innerHTML =
+    result.recommendations
+      .map(
+        (
+          recommendation,
+          index
+        ) => {
+          const severity =
+            recommendation.severity ||
+            "medium";
 
-            const evidence =
-              Array.isArray(
-                recommendation.evidence
-              )
-                ? recommendation.evidence
-                : [];
+          const businessImpact =
+            String(
+              recommendation
+                .businessImpact ||
+              ""
+            ).trim();
 
-            return `
-              <div class="rec">
-                <div class="rec-head">
-                  <small>
-                    Prioridade ${index + 1}
-                  </small>
+          const suggestedDeadline =
+            String(
+              recommendation
+                .suggestedDeadline ||
+              ""
+            ).trim();
 
-                  <span class="severity severity-${escapeHtml(severity)}">
-                    ${escapeHtml(severity)}
-                  </span>
-                </div>
+          return `
+            <article class="rec">
+              <div class="rec-head">
+                <small>
+                  Prioridade ${index + 1}
+                </small>
 
-                <h3>
-                  ${escapeHtml(recommendation.title)}
-                </h3>
-
-                <p>
-                  ${escapeHtml(recommendation.description)}
-                </p>
-
-                ${
-                  evidence.length
-                    ? `
-                      <ul class="evidence-list">
-                        ${evidence
-                          .map(
-                            (item) => `
-                              <li>
-                                <strong>
-                                  ${escapeHtml(item.question)}
-                                </strong>
-                                —
-                                ${escapeHtml(answerLabel(item.answer))}
-                                ${
-                                  item.observation
-                                    ? `; observação: ${escapeHtml(item.observation)}`
-                                    : ""
-                                }
-                              </li>
-                            `
-                          )
-                          .join("")}
-                      </ul>
-                    `
-                    : ""
-                }
+                <span
+                  class="severity severity-${escapeHtml(
+                    severity
+                  )}"
+                >
+                  ${escapeHtml(
+                    severityLabel(
+                      severity
+                    )
+                  )}
+                </span>
               </div>
-            `;
-          }
-        )
-        .join("");
+
+              <h3>
+                ${escapeHtml(
+                  recommendation.title
+                )}
+              </h3>
+
+              <p class="recommendation-description">
+                ${escapeHtml(
+                  recommendation.description
+                )}
+              </p>
+
+              ${
+                businessImpact
+                  ? `
+                    <div class="recommendation-detail">
+                      <strong>
+                        Impacto para o negócio
+                      </strong>
+
+                      <p>
+                        ${escapeHtml(
+                          businessImpact
+                        )}
+                      </p>
+                    </div>
+                  `
+                  : ""
+              }
+
+              ${
+                suggestedDeadline
+                  ? `
+                    <div class="recommendation-deadline">
+                      <span>
+                        Prazo sugerido
+                      </span>
+
+                      <strong>
+                        ${escapeHtml(
+                          suggestedDeadline
+                        )}
+                      </strong>
+                    </div>
+                  `
+                  : ""
+              }
+            </article>
+          `;
+        }
+      )
+      .join("");
   }
   const considerationsOutput =
   element(
@@ -2024,56 +3260,111 @@ function renderHistoryRecords() {
   list.innerHTML =
     historyState.records
       .map(
-        (record) => `
-          <div class="history-item">
-            <div>
-              <div class="history-title">
-                ${escapeHtml(record.client.companyName || "Cliente")}
+        (record) => {
+          const approval =
+            record.result
+              ?.approval || {};
+
+          const isApproved =
+            approval.status ===
+            "approved";
+
+          const approvalLabel =
+            isApproved
+              ? "Aprovado"
+              : "Em revisão";
+
+          const approvalClass =
+            isApproved
+              ? "approved"
+              : "draft";
+
+          return `
+            <div class="history-item">
+              <div>
+                <div class="history-title">
+                  ${escapeHtml(
+                    record.client
+                      .companyName ||
+                    "Cliente"
+                  )}
+                </div>
+
+                <div class="history-meta">
+                  ${formatDate(
+                    record.updatedAt
+                  )}
+                  ·
+                  ${escapeHtml(
+                    record.client
+                      .contactName ||
+                    "Sem contato"
+                  )}
+                  ·
+                  ${escapeHtml(
+                    record.result
+                      .level.name
+                  )}
+                </div>
+
+                <div class="history-status-row">
+                  <span
+                    class="approval-badge approval-${approvalClass}"
+                  >
+                    ${approvalLabel}
+                  </span>
+
+                  ${
+                    isApproved &&
+                    approval.approvedBy
+                      ? `
+                        <span class="history-approved-by">
+                          por
+                          ${escapeHtml(
+                            approval.approvedBy
+                          )}
+                        </span>
+                      `
+                      : ""
+                  }
+                </div>
               </div>
 
-              <div class="history-meta">
-                ${formatDate(record.updatedAt)}
-                ·
-                ${escapeHtml(record.client.contactName || "Sem contato")}
-                ·
-                ${escapeHtml(record.result.level.name)}
+              <div>
+                <div class="history-score">
+                  ${record.result.global}%
+                </div>
+
+                <div class="history-actions">
+                  <button
+                    class="btn btn-secondary btn-small"
+                    data-open-remote="${record.id}"
+                  >
+                    Abrir
+                  </button>
+
+                  <button
+                    class="btn btn-secondary btn-small"
+                    data-edit-remote="${record.id}"
+                  >
+                    Editar
+                  </button>
+
+                  <button
+                    class="btn btn-danger btn-small"
+                    data-delete-remote="${record.id}"
+                  >
+                    Excluir
+                  </button>
+                </div>
               </div>
             </div>
-
-            <div>
-              <div class="history-score">
-                ${record.result.global}%
-              </div>
-
-              <div class="history-actions">
-                <button
-                  class="btn btn-secondary btn-small"
-                  data-open-remote="${record.id}"
-                >
-                  Abrir
-                </button>
-
-                <button
-                  class="btn btn-secondary btn-small"
-                  data-edit-remote="${record.id}"
-                >
-                  Editar
-                </button>
-
-                <button
-                  class="btn btn-danger btn-small"
-                  data-delete-remote="${record.id}"
-                >
-                  Excluir
-                </button>
-              </div>
-            </div>
-          </div>
-        `
+          `;
+        }
       )
       .join("");
 
-  bindHistoryActions();
+      bindHistoryActions();
 }
 
 function bindHistoryActions() {
@@ -2326,8 +3617,341 @@ function setReportPreviewMode(
   });
 }
 
+function getMissingQuestions() {
+  const missing = [];
+
+  CONFIG.sections.forEach(
+    (section) => {
+      section.questions.forEach(
+        (question) => {
+          if (
+            !state.answers[
+              question.id
+            ]?.value
+          ) {
+            missing.push({
+              section:
+                section.name,
+
+              question:
+                question.text,
+            });
+          }
+        }
+      );
+    }
+  );
+
+  return missing;
+}
+
+function validateDiagnosticForReport() {
+  const errors = [];
+  const warnings = [];
+
+  const client =
+    state.client || {};
+
+  if (
+    !String(
+      client.companyName || ""
+    ).trim()
+  ) {
+    errors.push(
+      "Informe o nome da empresa."
+    );
+  }
+
+  if (
+    !String(
+      client.contactName || ""
+    ).trim()
+  ) {
+    errors.push(
+      "Informe o nome do contato."
+    );
+  }
+
+  if (
+    !String(
+      client.consultantName || ""
+    ).trim()
+  ) {
+    errors.push(
+      "Informe o consultor responsável."
+    );
+  }
+
+  const email =
+    String(
+      client.contactEmail || ""
+    ).trim();
+
+  if (!email) {
+    errors.push(
+      "Informe o e-mail do contato."
+    );
+  } else if (
+    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(
+      email
+    )
+  ) {
+    errors.push(
+      "O e-mail do contato não é válido."
+    );
+  }
+
+  const phone =
+  String(
+    client.contactPhone || ""
+  ).trim();
+
+  if (!phone) {
+    errors.push(
+      "Informe o telefone do contato."
+    );
+  }
+
+  const employeeCount =
+  String(
+    client.employeeCount || ""
+  ).trim();
+
+  if (!employeeCount) {
+    errors.push(
+      "Selecione o número de colaboradores."
+    );
+  } else if (
+    !EMPLOYEE_COUNT_OPTIONS.includes(
+      employeeCount
+    )
+  ) {
+    errors.push(
+      "Selecione uma faixa válida de colaboradores."
+    );
+  }
+
+  const segment =
+  String(
+    client.segment || ""
+  ).trim();
+
+  if (!segment) {
+    errors.push(
+      "Selecione o segmento da empresa."
+    );
+  } else if (
+    !SEGMENT_OPTIONS.includes(
+      segment
+    )
+  ) {
+    errors.push(
+      "Selecione um segmento válido."
+    );
+  }
+
+  const missingQuestions =
+    getMissingQuestions();
+
+  if (missingQuestions.length) {
+    errors.push(
+      `${missingQuestions.length} pergunta(s) ainda estão sem resposta.`
+    );
+  }
+
+  const unknownCount =
+    Object.values(
+      state.answers || {}
+    ).filter(
+      (answer) =>
+        answer?.value ===
+        "unknown"
+    ).length;
+
+  if (unknownCount) {
+    warnings.push(
+      `${unknownCount} resposta(s) foram marcadas como “Não sei responder”.`
+    );
+  }
+
+  if (
+    !String(
+      state.finalConsiderations ||
+      ""
+    ).trim()
+  ) {
+    errors.push(
+      "Preencha ou gere as considerações finais."
+    );
+  }
+
+  const approvalIds = [
+    "reviewDataApproved",
+    "reviewAnswersApproved",
+    "reviewRecommendationsApproved",
+    "reviewConsiderationsApproved",
+  ];
+
+  const pendingApprovals =
+    approvalIds.filter(
+      (id) =>
+        !element(id)?.checked
+    ).length;
+
+  if (pendingApprovals) {
+    errors.push(
+      "Conclua o checklist de aprovação."
+    );
+  }
+
+  return {
+    valid:
+      errors.length === 0,
+
+    errors,
+    warnings,
+  };
+}
+
+function showDiagnosticValidation(
+  validation
+) {
+  const warning =
+    element("reviewWarning");
+
+  if (!warning) {
+    return;
+  }
+
+  const errors =
+    Array.isArray(
+      validation?.errors
+    )
+      ? validation.errors
+      : [];
+
+  const warnings =
+    Array.isArray(
+      validation?.warnings
+    )
+      ? validation.warnings
+      : [];
+
+  if (
+    !errors.length &&
+    !warnings.length
+  ) {
+    warning.innerHTML = "";
+
+    warning.classList.add(
+      "hidden"
+    );
+
+    warning.classList.remove(
+      "review-warning-error",
+      "review-warning-attention"
+    );
+
+    return;
+  }
+
+  const hasErrors =
+    errors.length > 0;
+
+  const messages = [
+    ...errors.map(
+      (message) => ({
+        type: "error",
+        message,
+      })
+    ),
+
+    ...warnings.map(
+      (message) => ({
+        type: "warning",
+        message,
+      })
+    ),
+  ];
+
+  warning.classList.remove(
+    "hidden"
+  );
+
+  warning.classList.toggle(
+    "review-warning-error",
+    hasErrors
+  );
+
+  warning.classList.toggle(
+    "review-warning-attention",
+    !hasErrors
+  );
+
+  warning.innerHTML = `
+    <strong class="review-warning-title">
+      ${
+        hasErrors
+          ? "Corrija os itens abaixo antes de continuar"
+          : "Atenção antes de finalizar"
+      }
+    </strong>
+
+    <ul class="review-warning-list">
+      ${messages
+        .map(
+          (item) => `
+            <li>
+              ${
+                item.type ===
+                "error"
+                  ? "Erro:"
+                  : "Aviso:"
+              }
+
+              ${escapeHtml(
+                item.message
+              )}
+            </li>
+          `
+        )
+        .join("")}
+    </ul>
+  `;
+
+  if (hasErrors) {
+    alert(
+      "Revise o diagnóstico antes de continuar:\n\n" +
+      errors
+        .map(
+          (message) =>
+            `• ${message}`
+        )
+        .join("\n")
+    );
+
+    show("review");
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  }
+}
+
 function previewReport() {
   saveClient();
+
+  const validation =
+    validateDiagnosticForReport();
+
+  showDiagnosticValidation(
+    validation
+  );
+
+  if (!validation.valid) {
+    return;
+  }
 
   const result =
     buildResult();
@@ -2383,8 +4007,36 @@ function previewReport() {
 async function generateResult() {
   saveClient();
 
+  const validation =
+    validateDiagnosticForReport();
+
+  showDiagnosticValidation(
+    validation
+  );
+
+  if (!validation.valid) {
+    return;
+  }
+
   const result =
     buildResult();
+
+  const approvalDate =
+    new Date().toISOString();
+
+  result.approval = {
+    status: "approved",
+
+    approvedAt:
+      approvalDate,
+
+    approvedBy:
+      String(
+        state.client
+          ?.consultantName ||
+        ""
+      ).trim(),
+  };
 
   const button =
     element("generateBtn");
@@ -3195,7 +4847,7 @@ function bindEvents() {
     "printBtn"
   ).addEventListener(
     "click",
-    () => window.print()
+    () => printReport()
   );
 
   element(

@@ -2,6 +2,11 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
+  <link
+    rel="icon"
+    type="image/png"
+    href="./assets/favicon.png"
+  >
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Diagnóstico de Segurança Digital da stmgo">
   <title>Diagnóstico de Segurança Digital — stmgo</title>
@@ -78,7 +83,9 @@
 
           <div
             id="reviewWarning"
-            class="warning hidden"
+            class="review-warning hidden"
+            role="alert"
+            aria-live="polite"
           ></div>
 
           <div class="review-layout">
@@ -306,6 +313,7 @@
             <div><label for="contactPhone">Telefone</label><input id="contactPhone"></div>
             <div><label for="employeeCount">Número de colaboradores</label><input id="employeeCount" type="number" min="1"></div>
             <div><label for="segment">Segmento</label><input id="segment"></div>
+            <div><label for="consultantName">Consultor responsável</label><input id="consultantName" autocomplete="name" placeholder="Nome do consultor da stmgo" required > </div>
           </div>
           <div>
             <label for="clientNotes" class="label-spaced">Observações gerais</label>
