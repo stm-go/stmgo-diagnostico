@@ -671,15 +671,6 @@ button:disabled,
   gap: 18px;
 }
 
-.report-brand {
-  color: #ffffff;
-  font-size: 34px;
-}
-
-.report-brand span {
-  color: #fe7d53;
-}
-
 .report-confidential {
   padding: 7px 12px;
   border: 1px solid rgba(255, 255, 255, 0.32);
