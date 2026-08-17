@@ -43,6 +43,26 @@ function hideAllScreens() {
   });
 }
 
+function setAuthStatus(
+  message,
+  type = "info"
+) {
+  const status =
+    document.getElementById(
+      "supabase-status"
+    );
+
+  if (!status) {
+    return;
+  }
+
+  status.textContent =
+    message;
+
+  status.className =
+    `status-toast ${type}`;
+}
+
 function showLogin() {
   hideAllScreens();
 

@@ -1927,3 +1927,1947 @@ button:disabled,
   }
 }
 
+/* =========================================================
+   RELATÓRIO DO CLIENTE - MODELO STMGO
+   ========================================================= */
+
+.report-document {
+  width: 100%;
+  padding: 0;
+  margin: 0;
+
+  border: 0;
+  border-radius: 0;
+
+  background: transparent;
+
+  box-shadow: none;
+}
+
+
+/* =========================================================
+   PÁGINAS
+   ========================================================= */
+
+.pdf-page {
+  position: relative;
+
+  width: 794px;
+  min-height: 1123px;
+
+  margin: 0 auto 32px;
+
+  overflow: hidden;
+
+  background: #ffffff;
+  color: #4b4b4b;
+
+  font-family:
+    Inter,
+    Arial,
+    Helvetica,
+    sans-serif;
+
+  box-shadow:
+    0 8px 32px
+    rgba(7, 34, 73, 0.12);
+}
+
+.pdf-page-body {
+  padding:
+    46px 58px;
+}
+
+
+/* =========================================================
+   TÍTULOS DAS SEÇÕES
+   ========================================================= */
+
+.pdf-section-kicker {
+  margin-bottom: 9px;
+
+  color: #fe7d53;
+
+  font-size: 10px;
+  font-weight: 800;
+
+  letter-spacing: 4px;
+
+  text-transform: uppercase;
+}
+
+.pdf-section-title {
+  margin: 0 0 10px;
+
+  color: #082653;
+
+  font-size: 28px;
+  font-weight: 850;
+
+  line-height: 1.15;
+
+  letter-spacing: -0.8px;
+}
+
+.pdf-section-description {
+  max-width: 680px;
+
+  margin: 0;
+
+  color: #666666;
+
+  font-size: 13px;
+  font-weight: 400;
+
+  line-height: 1.65;
+}
+
+
+/* =========================================================
+   PÁGINA 1 - CAPA
+   ========================================================= */
+
+.pdf-cover {
+  height: 332px;
+
+  background:
+    #082653;
+
+  color: #ffffff;
+}
+
+.pdf-cover-content {
+  padding:
+    50px 58px
+    38px;
+}
+
+.pdf-cover-logo {
+  display: block;
+
+  width: 165px;
+  height: auto;
+
+  margin-bottom: 32px;
+
+  object-fit: contain;
+}
+
+.pdf-cover-kicker {
+  margin-bottom: 12px;
+
+  color:
+    rgba(
+      255,
+      255,
+      255,
+      0.58
+    );
+
+  font-size: 10px;
+  font-weight: 700;
+
+  letter-spacing: 4px;
+}
+
+.pdf-cover-title {
+  max-width: 550px;
+
+  margin:
+    0 0 17px;
+
+  color: #ffffff;
+
+  font-size: 36px;
+  font-weight: 900;
+
+  line-height: 1.12;
+
+  letter-spacing: -1.2px;
+}
+
+.pdf-cover-company {
+  margin-top: 6px;
+
+  color: #fe7d53;
+
+  font-size: 17px;
+  font-weight: 800;
+
+  text-transform: uppercase;
+}
+
+.pdf-cover-meta {
+  margin-top: 4px;
+
+  color:
+    rgba(
+      255,
+      255,
+      255,
+      0.44
+    );
+
+  font-size: 11px;
+}
+
+
+/* =========================================================
+   PÁGINA 1 - SCORE GLOBAL
+   ========================================================= */
+
+.pdf-global-section {
+  padding-top: 40px;
+}
+
+.pdf-global-score {
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  margin:
+    45px 0
+    30px;
+}
+
+
+/* MEDIDOR */
+
+.pdf-gauge {
+  --gauge-progress: 0deg;
+
+  position: relative;
+
+  width: 220px;
+  height: 180px;
+}
+
+.pdf-gauge-track {
+  position: absolute;
+
+  top: 0;
+  left: 20px;
+
+  width: 180px;
+  height: 180px;
+
+  border-radius: 50%;
+
+  background:
+    conic-gradient(
+      from 270deg,
+
+      #fe7d53
+        0deg,
+
+      #a4006d
+        var(--gauge-progress),
+
+      #e9e9e9
+        var(--gauge-progress),
+
+      #e9e9e9
+        180deg,
+
+      transparent
+        180deg,
+
+      transparent
+        360deg
+    );
+
+  clip-path:
+    inset(
+      0
+      0
+      50%
+      0
+    );
+}
+
+.pdf-gauge-track::after {
+  content: "";
+
+  position: absolute;
+
+  inset: 14px;
+
+  border-radius: 50%;
+
+  background: #ffffff;
+}
+
+.pdf-gauge-content {
+  position: absolute;
+
+  top: 88px;
+  left: 0;
+
+  width: 100%;
+
+  text-align: center;
+}
+
+.pdf-global-score .score-number {
+  margin: 0;
+
+  background: none;
+
+  color: #e97a12;
+
+  font-size: 50px;
+  font-weight: 900;
+
+  line-height: 1;
+
+  -webkit-text-fill-color:
+    initial;
+}
+
+.pdf-global-score .level {
+  display: inline-block;
+
+  min-width: 78px;
+
+  margin-top: 8px;
+
+  padding:
+    7px 16px;
+
+  border-radius: 999px;
+
+  background: #e97a12;
+  color: #ffffff;
+
+  font-size: 11px;
+  font-weight: 750;
+}
+
+
+/* DESCRIÇÃO DA MATURIDADE */
+
+.pdf-maturity-box {
+  margin-top: 8px;
+
+  padding:
+    19px 26px;
+
+  border-left:
+    4px solid #e97a12;
+
+  border-radius: 11px;
+
+  background: #fff8f4;
+}
+
+.pdf-maturity-box p {
+  margin: 0;
+
+  color: #595959;
+
+  font-size: 13px;
+
+  line-height: 1.65;
+}
+
+
+/* =========================================================
+   PÁGINA 2 - ÁREAS
+   ========================================================= */
+
+.pdf-page-2 .pdf-page-body {
+  padding-top: 48px;
+}
+
+.pdf-area-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      2,
+      minmax(0, 1fr)
+    );
+
+  gap: 18px;
+
+  margin-top: 34px;
+}
+
+
+/* compatibilidade com os cards atuais */
+
+.pdf-area-grid .score-card {
+  position: relative;
+
+  min-height: 140px;
+
+  padding:
+    24px 27px;
+
+  border:
+    1px solid #ededed;
+
+  border-left:
+    4px solid #e97a12;
+
+  border-radius: 15px;
+
+  background: #ffffff;
+
+  text-align: left;
+
+  box-shadow:
+    0 2px 8px
+    rgba(
+      0,
+      0,
+      0,
+      0.025
+    );
+}
+
+.pdf-area-grid .score-card span {
+  display: block;
+
+  margin-bottom: 7px;
+
+  color: #a0a0a0;
+
+  font-size: 10px;
+  font-weight: 700;
+
+  letter-spacing: 1.5px;
+
+  text-transform: uppercase;
+}
+
+.pdf-area-grid .score-card strong {
+  display: block;
+
+  margin: 0;
+
+  color: #e97a12;
+
+  font-size: 36px;
+  font-weight: 900;
+
+  line-height: 1;
+}
+
+
+/* versão que vamos usar no JS */
+
+.pdf-area-score-value {
+  display: block;
+
+  margin-top: 4px;
+
+  color: #e97a12;
+
+  font-size: 36px;
+  font-weight: 900;
+
+  line-height: 1;
+}
+
+.pdf-area-progress {
+  height: 6px;
+
+  margin:
+    13px 0
+    8px;
+
+  overflow: hidden;
+
+  border-radius: 999px;
+
+  background: #eeeeee;
+}
+
+.pdf-area-progress-bar {
+  height: 100%;
+
+  border-radius: inherit;
+
+  background:
+    linear-gradient(
+      90deg,
+      #fe7d53,
+      #9f0066
+    );
+}
+
+.pdf-area-level {
+  color: #e97a12;
+
+  font-size: 11px;
+  font-weight: 800;
+}
+
+
+/* cores por nível */
+
+.pdf-area-card.level-critical {
+  border-left-color:
+    #c43830;
+}
+
+.pdf-area-card.level-critical
+.pdf-area-score-value,
+.pdf-area-card.level-critical
+.pdf-area-level {
+  color: #c43830;
+}
+
+.pdf-area-card.level-initial {
+  border-left-color:
+    #e97a12;
+}
+
+.pdf-area-card.level-initial
+.pdf-area-score-value,
+.pdf-area-card.level-initial
+.pdf-area-level {
+  color: #e97a12;
+}
+
+.pdf-area-card.level-moderate {
+  border-left-color:
+    #c7a500;
+}
+
+.pdf-area-card.level-moderate
+.pdf-area-score-value,
+.pdf-area-card.level-moderate
+.pdf-area-level {
+  color: #c7a500;
+}
+
+.pdf-area-card.level-conscious,
+.pdf-area-card.level-optimized {
+  border-left-color:
+    #15803d;
+}
+
+.pdf-area-card.level-conscious
+.pdf-area-score-value,
+.pdf-area-card.level-conscious
+.pdf-area-level,
+.pdf-area-card.level-optimized
+.pdf-area-score-value,
+.pdf-area-card.level-optimized
+.pdf-area-level {
+  color: #15803d;
+}
+
+
+/* =========================================================
+   PÁGINA 3 - AÇÕES
+   ========================================================= */
+
+.pdf-page-3 .pdf-page-body {
+  padding-top: 46px;
+}
+
+.pdf-actions-list {
+  margin-top: 27px;
+}
+
+.pdf-actions-list .rec {
+  margin:
+    0 0
+    15px;
+
+  padding:
+    17px 21px
+    18px;
+
+  border: 0;
+
+  border-left:
+    4px solid #fe7d53;
+
+  border-radius: 11px;
+
+  background: #fff4f1;
+
+  box-shadow: none;
+
+  color: #505050;
+}
+
+.pdf-actions-list .rec-head {
+  margin-bottom: 4px;
+}
+
+.pdf-actions-list .rec-head small {
+  color: #fe7d53;
+
+  font-size: 10px;
+  font-weight: 800;
+
+  letter-spacing: 1px;
+
+  text-transform: uppercase;
+}
+
+.pdf-actions-list .severity {
+  display: none;
+}
+
+.pdf-actions-list .rec h3 {
+  margin:
+    0 0
+    5px;
+
+  color: #082653;
+
+  font-size: 14px;
+  font-weight: 800;
+
+  line-height: 1.35;
+}
+
+.pdf-actions-list
+.recommendation-description {
+  margin: 0;
+
+  color: #595959;
+
+  font-size: 12.5px;
+
+  line-height: 1.65;
+}
+
+
+/*
+  Estas informações continuam existindo
+  internamente para o consultor,
+  mas não entram no PDF do cliente.
+*/
+
+.pdf-actions-list
+.recommendation-detail,
+.pdf-actions-list
+.recommendation-deadline,
+.pdf-actions-list
+.recommendation-actions {
+  display: none !important;
+}
+
+
+/* =========================================================
+   CONSIDERAÇÕES
+   ========================================================= */
+
+.pdf-considerations {
+  margin-top: 40px;
+
+  padding-top: 39px;
+
+  border-top:
+    1px solid #f0f0f0;
+}
+
+.pdf-considerations-text {
+  margin-top: 20px;
+}
+
+.pdf-considerations-text p {
+  margin:
+    0 0
+    14px;
+
+  color: #505050;
+
+  font-size: 13px;
+
+  line-height: 1.75;
+}
+
+
+/* =========================================================
+   PÁGINA 4 - PRÓXIMOS PASSOS
+   ========================================================= */
+
+.pdf-page-4 {
+  background: #ffffff;
+}
+
+.pdf-next-steps {
+  height: 690px;
+
+  display: flex;
+
+  justify-content: center;
+
+  padding:
+    58px 80px;
+
+  background: #082653;
+
+  color: #ffffff;
+
+  text-align: center;
+}
+
+.pdf-next-content {
+  width: 100%;
+  max-width: 610px;
+}
+
+.pdf-next-kicker {
+  margin-bottom: 18px;
+
+  color: #fe7d53;
+
+  font-size: 10px;
+  font-weight: 800;
+
+  letter-spacing: 4px;
+
+  text-transform: uppercase;
+}
+
+.pdf-next-title {
+  margin:
+    0 auto 21px;
+
+  color: #ffffff;
+
+  font-size: 36px;
+  font-weight: 900;
+
+  line-height: 1.12;
+
+  letter-spacing: -1px;
+}
+
+.pdf-next-description {
+  max-width: 570px;
+
+  margin:
+    0 auto;
+
+  color:
+    rgba(
+      255,
+      255,
+      255,
+      0.72
+    );
+
+  font-size: 13px;
+
+  line-height: 1.7;
+}
+
+.pdf-next-highlight {
+  margin:
+    27px 0
+    19px;
+
+  color: #fe7d53;
+
+  font-size: 14px;
+  font-weight: 800;
+}
+
+
+/* TAGS */
+
+.pdf-service-tags {
+  display: flex;
+
+  justify-content: center;
+  align-items: center;
+
+  flex-wrap: wrap;
+
+  gap:
+    10px 12px;
+
+  margin:
+    0 auto;
+
+  max-width: 600px;
+}
+
+.pdf-service-tag {
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 7px;
+
+  min-height: 39px;
+
+  padding:
+    9px 20px;
+
+  border:
+    1px solid
+    rgba(
+      255,
+      255,
+      255,
+      0.18
+    );
+
+  border-radius: 999px;
+
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.08
+    );
+
+  color: #ffffff;
+
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.pdf-service-symbol {
+  color: #fe7d53;
+
+  font-size: 11px;
+}
+
+
+/* BOTÃO */
+
+.pdf-contact-button {
+  width: 300px;
+
+  margin:
+    32px auto
+    0;
+
+  padding:
+    14px 24px;
+
+  border-radius: 999px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #fe7d53,
+      #d50070
+    );
+
+  color: #ffffff;
+
+  font-size: 13px;
+  font-weight: 800;
+}
+
+
+/* CONTATO */
+
+.pdf-contact-details {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 5px;
+
+  margin-top: 23px;
+
+  color:
+    rgba(
+      255,
+      255,
+      255,
+      0.38
+    );
+
+  font-size: 10px;
+}
+
+
+/* =========================================================
+   RODAPÉ DA ÚLTIMA PÁGINA
+   ========================================================= */
+
+.pdf-final-footer {
+  height: 76px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 20px;
+
+  padding:
+    17px 58px;
+
+  background: #fafafa;
+
+  border-bottom:
+    1px solid #f1f1f1;
+}
+
+.pdf-footer-logo {
+  display: block;
+
+  width: 100px;
+  height: auto;
+
+  object-fit: contain;
+}
+
+.pdf-footer-info {
+  color: #b0b0b0;
+
+  font-size: 9px;
+
+  line-height: 1.55;
+
+  text-align: right;
+}
+
+.pdf-footer-info strong {
+  font-weight: 500;
+}
+
+
+/* =========================================================
+   ELEMENTOS DE COMPATIBILIDADE
+   ========================================================= */
+
+.report-compatibility-data {
+  display: none !important;
+}
+
+
+/* =========================================================
+   PREVIEW EM TELAS MENORES
+   ========================================================= */
+
+@media (max-width: 900px) {
+
+  .pdf-page {
+    width: 100%;
+    min-height: auto;
+
+    margin-bottom: 20px;
+
+    box-shadow: none;
+  }
+
+  .pdf-cover {
+    height: auto;
+    min-height: 330px;
+  }
+
+  .pdf-page-body {
+    padding:
+      40px 32px;
+  }
+
+  .pdf-area-grid {
+    grid-template-columns:
+      1fr;
+  }
+
+  .pdf-next-steps {
+    height: auto;
+    min-height: 650px;
+
+    padding:
+      50px 28px;
+  }
+
+  .pdf-final-footer {
+    height: auto;
+
+    align-items: flex-start;
+
+    flex-direction: column;
+
+    padding:
+      20px 28px;
+  }
+
+  .pdf-footer-info {
+    text-align: left;
+  }
+}
+
+/* =========================================================
+   AJUSTE FINO - PDF STMGO DE REFERÊNCIA
+   Deve ficar no FINAL do styles.css
+   ========================================================= */
+
+
+/* ---------------------------------------------------------
+   BASE DAS PÁGINAS
+   --------------------------------------------------------- */
+
+.pdf-page {
+  width: 794px;
+  height: 1123px;
+  min-height: 1123px;
+  max-height: 1123px;
+
+  margin: 0 auto 32px;
+
+  overflow: hidden;
+
+  background: #ffffff;
+
+  font-family:
+    Inter,
+    Arial,
+    Helvetica,
+    sans-serif;
+}
+
+.pdf-page-body {
+  padding: 48px 60px;
+}
+
+
+/* ---------------------------------------------------------
+   HIERARQUIA DE TÍTULOS
+   --------------------------------------------------------- */
+
+.pdf-section-kicker {
+  margin-bottom: 10px;
+
+  color: #fe7d53;
+
+  font-size: 10px;
+  font-weight: 700;
+
+  letter-spacing: 3px;
+
+  text-transform: uppercase;
+}
+
+.pdf-section-title {
+  margin: 0 0 8px;
+
+  color: #072249;
+
+  font-size: 28px;
+  font-weight: 900;
+
+  line-height: 1.2;
+
+  letter-spacing: -0.6px;
+}
+
+.pdf-section-description {
+  max-width: 680px;
+
+  margin: 0;
+
+  color: #666666;
+
+  font-size: 14px;
+
+  line-height: 1.75;
+}
+
+
+/* =========================================================
+   PÁGINA 1 - CAPA
+   ========================================================= */
+
+.pdf-cover {
+  position: relative;
+
+  height: 320px;
+
+  overflow: hidden;
+
+  background:
+    linear-gradient(
+      160deg,
+      #0a1f4e 0%,
+      #072249 60%,
+      #0d1f3c 100%
+    );
+
+  color: #ffffff;
+}
+
+.pdf-cover::after {
+  content: "";
+
+  position: absolute;
+
+  top: -100px;
+  right: -100px;
+
+  width: 450px;
+  height: 450px;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(159, 0, 102, 0.30) 0%,
+      transparent 70%
+    );
+
+  pointer-events: none;
+}
+
+.pdf-cover-content {
+  position: relative;
+  z-index: 1;
+
+  padding: 56px 60px 60px;
+}
+
+.pdf-cover-logo {
+  display: block;
+
+  width: auto;
+  height: 44px;
+
+  margin: 0 0 32px;
+
+  object-fit: contain;
+  object-position: left center;
+}
+
+.pdf-cover-kicker {
+  margin-bottom: 10px;
+
+  color:
+    rgba(
+      255,
+      255,
+      255,
+      0.55
+    );
+
+  font-size: 11px;
+  font-weight: 600;
+
+  letter-spacing: 3px;
+
+  text-transform: uppercase;
+}
+
+.pdf-cover-title {
+  max-width: 600px;
+
+  margin: 0 0 20px;
+
+  color: #ffffff;
+
+  font-size: 38px;
+  font-weight: 900;
+
+  line-height: 1.15;
+
+  letter-spacing: -1px;
+}
+
+.pdf-cover-company {
+  margin: 0 0 4px;
+
+  color: #fe7d53;
+
+  font-size: 18px;
+  font-weight: 700;
+
+  text-transform: uppercase;
+}
+
+.pdf-cover-meta {
+  margin: 0;
+
+  color:
+    rgba(
+      255,
+      255,
+      255,
+      0.40
+    );
+
+  font-size: 12px;
+}
+
+
+/* =========================================================
+   PÁGINA 1 - SCORE GLOBAL
+   ========================================================= */
+
+.pdf-global-section {
+  padding: 48px 60px;
+}
+
+
+/*
+   Agora o gauge usa a mesma composição do
+   modelo original:
+   arco
+   percentual
+   badge
+*/
+
+.pdf-global-score {
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  margin: 28px 0 36px;
+}
+
+.pdf-gauge {
+  position: relative;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: flex-start;
+
+  width: 240px;
+  height: auto;
+}
+
+.pdf-gauge > svg {
+  display: block;
+
+  width: 240px;
+  height: 128px;
+
+  overflow: visible;
+}
+
+.pdf-gauge-content {
+  position: static;
+
+  width: auto;
+
+  margin-top: -4px;
+
+  text-align: center;
+}
+
+.pdf-global-score
+.score-number {
+  margin: 0;
+
+  font-size: 52px;
+  font-weight: 900;
+
+  line-height: 1;
+
+  background: none;
+
+  -webkit-text-fill-color:
+    initial;
+}
+
+.pdf-global-score
+.level {
+  display: inline-block;
+
+  min-width: 0;
+
+  margin-top: 10px;
+
+  padding: 7px 22px;
+
+  border-radius: 50px;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  letter-spacing: 0.5px;
+}
+
+
+/* caixa da maturidade */
+
+.pdf-maturity-box {
+  margin-top: 16px;
+
+  padding: 22px 26px;
+
+  border-left-width: 5px;
+  border-left-style: solid;
+
+  border-radius: 14px;
+}
+
+.pdf-maturity-box p {
+  margin: 0;
+
+  color: #555555;
+
+  font-size: 13px;
+
+  line-height: 1.75;
+}
+
+
+/* =========================================================
+   PÁGINA 2
+   ========================================================= */
+
+.pdf-page-2 {
+  background: #fafafa;
+}
+
+.pdf-page-2
+.pdf-page-body {
+  padding: 48px 60px;
+}
+
+.pdf-area-grid {
+  display: grid;
+
+  grid-template-columns:
+    1fr 1fr;
+
+  gap: 18px;
+
+  margin-top: 24px;
+}
+
+.pdf-area-grid
+.pdf-area-card {
+  min-height: 0;
+
+  padding: 26px;
+
+  border:
+    1.5px solid #efefef;
+
+  border-left-width: 5px;
+
+  border-radius: 16px;
+
+  background: #ffffff;
+
+  box-shadow: none;
+}
+
+.pdf-area-grid
+.pdf-area-card > span {
+  display: block;
+
+  margin-bottom: 8px;
+
+  color: #aaaaaa;
+
+  font-size: 11px;
+  font-weight: 700;
+
+  letter-spacing: 1px;
+
+  text-transform: uppercase;
+}
+
+.pdf-area-score-value {
+  margin: 0 0 12px !important;
+
+  font-size: 36px !important;
+  font-weight: 900 !important;
+
+  line-height: 1 !important;
+}
+
+.pdf-area-progress {
+  height: 7px;
+
+  margin:
+    0 0
+    8px;
+
+  overflow: hidden;
+
+  border-radius: 4px;
+
+  background: #efefef;
+}
+
+.pdf-area-progress-bar {
+  height: 100%;
+
+  border-radius: 4px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #fe7d53,
+      #9f0066
+    );
+}
+
+.pdf-area-level {
+  font-size: 12px;
+  font-weight: 700;
+}
+
+
+/* =========================================================
+   PÁGINA 3 - AÇÕES
+   ========================================================= */
+
+.pdf-page-3
+.pdf-page-body {
+  padding: 48px 60px;
+}
+
+.pdf-actions-list {
+  margin-top: 24px;
+}
+
+.pdf-actions-list
+.rec {
+  margin: 0 0 14px;
+
+  padding: 20px 22px;
+
+  border: 0;
+
+  border-left:
+    4px solid #fe7d53;
+
+  border-radius: 12px;
+
+  background:
+    rgba(
+      254,
+      125,
+      83,
+      0.07
+    );
+
+  box-shadow: none;
+}
+
+.pdf-actions-list
+.rec-head {
+  margin: 0 0 4px;
+}
+
+.pdf-actions-list
+.rec-head small {
+  color: #fe7d53;
+
+  font-size: 11px;
+  font-weight: 700;
+
+  letter-spacing: 1px;
+
+  text-transform: uppercase;
+}
+
+.pdf-actions-list
+.rec h3 {
+  margin: 0 0 6px;
+
+  color: #072249;
+
+  font-size: 15px;
+  font-weight: 700;
+
+  line-height: 1.4;
+}
+
+.pdf-actions-list
+.recommendation-description {
+  margin: 0;
+
+  color: #555555;
+
+  font-size: 13px;
+
+  line-height: 1.75;
+}
+
+
+/* elementos internos não entram no PDF */
+
+.pdf-actions-list
+.severity,
+.pdf-actions-list
+.recommendation-detail,
+.pdf-actions-list
+.recommendation-deadline,
+.pdf-actions-list
+.recommendation-actions {
+  display: none !important;
+}
+
+
+/* ---------------------------------------------------------
+   CONSIDERAÇÕES
+   --------------------------------------------------------- */
+
+.pdf-considerations {
+  margin-top: 42px;
+
+  padding-top: 42px;
+
+  border-top:
+    1px solid #efefef;
+}
+
+.pdf-considerations-text {
+  margin-top: 16px;
+}
+
+.pdf-considerations-text p {
+  margin: 0;
+
+  color: #444444;
+
+  font-size: 14px;
+
+  line-height: 1.85;
+}
+
+.pdf-considerations-text
+p + p {
+  margin-top: 14px;
+}
+
+
+/* =========================================================
+   PÁGINA 4
+   ========================================================= */
+
+.pdf-page-4 {
+  background: #ffffff;
+}
+
+
+/* área azul */
+
+.pdf-next-steps {
+  position: relative;
+
+  height: 624px;
+
+  overflow: hidden;
+
+  padding: 64px 60px;
+
+  background:
+    linear-gradient(
+      160deg,
+      #0a1f4e 0%,
+      #072249 100%
+    );
+
+  color: #ffffff;
+
+  text-align: center;
+}
+
+.pdf-next-steps::before {
+  content: "";
+
+  position: absolute;
+
+  top: -80px;
+  left: -80px;
+
+  width: 320px;
+  height: 320px;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(
+        254,
+        125,
+        83,
+        0.15
+      ) 0%,
+      transparent 70%
+    );
+
+  pointer-events: none;
+}
+
+.pdf-next-steps::after {
+  content: "";
+
+  position: absolute;
+
+  right: -60px;
+  bottom: -60px;
+
+  width: 280px;
+  height: 280px;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(
+        159,
+        0,
+        102,
+        0.15
+      ) 0%,
+      transparent 70%
+    );
+
+  pointer-events: none;
+}
+
+.pdf-next-content {
+  position: relative;
+  z-index: 1;
+
+  width: 100%;
+  max-width: 580px;
+
+  margin: 0 auto;
+}
+
+.pdf-next-kicker {
+  margin-bottom: 14px;
+
+  color: #fe7d53;
+
+  font-size: 11px;
+  font-weight: 700;
+
+  letter-spacing: 3px;
+
+  text-transform: uppercase;
+}
+
+.pdf-next-title {
+  margin: 0 0 18px;
+
+  color: #ffffff;
+
+  font-size: 36px;
+  font-weight: 900;
+
+  line-height: 1.2;
+}
+
+.pdf-next-description {
+  max-width: 580px;
+
+  margin: 0 auto 24px;
+
+  color:
+    rgba(
+      255,
+      255,
+      255,
+      0.70
+    );
+
+  font-size: 14px;
+
+  line-height: 1.8;
+}
+
+.pdf-next-highlight {
+  margin:
+    0 0
+    20px;
+
+  color: #fe7d53;
+
+  font-size: 15px;
+  font-weight: 700;
+}
+
+
+/* serviços */
+
+.pdf-service-tags {
+  display: flex;
+
+  flex-wrap: wrap;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 12px;
+
+  max-width: 620px;
+
+  margin:
+    0 auto 32px;
+}
+
+.pdf-service-tag {
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  gap: 7px;
+
+  min-height: 0;
+
+  padding: 10px 22px;
+
+  border:
+    1.5px solid
+    rgba(
+      255,
+      255,
+      255,
+      0.20
+    );
+
+  border-radius: 50px;
+
+  background:
+    rgba(
+      255,
+      255,
+      255,
+      0.10
+    );
+
+  color: #ffffff;
+
+  font-size: 13px;
+  font-weight: 600;
+}
+
+
+/* CTA */
+
+.pdf-contact-button {
+  display: inline-block;
+
+  width: auto;
+
+  margin: 0;
+
+  padding: 18px 44px;
+
+  border-radius: 50px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #fe7d53,
+      #9f0066
+    );
+
+  color: #ffffff;
+
+  font-size: 15px;
+  font-weight: 800;
+
+  letter-spacing: 0.3px;
+}
+
+.pdf-contact-details {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 2px;
+
+  margin-top: 20px;
+
+  color:
+    rgba(
+      255,
+      255,
+      255,
+      0.40
+    );
+
+  font-size: 12px;
+
+  line-height: 1.8;
+}
+
+
+/* =========================================================
+   RODAPÉ FINAL
+   ========================================================= */
+
+.pdf-final-footer {
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  min-height: 70px;
+
+  padding: 20px 60px;
+
+  border-top:
+    1px solid #e8e8e8;
+
+  background: #f4f4f6;
+}
+
+.pdf-footer-logo {
+  display: block;
+
+  width: auto;
+  height: 26px;
+
+  object-fit: contain;
+  object-position: left center;
+}
+
+.pdf-footer-info {
+  color: #aaaaaa;
+
+  font-size: 11px;
+
+  line-height: 1.6;
+
+  text-align: right;
+}
+
+
+/* =========================================================
+   IMPRESSÃO
+   ========================================================= */
+
+@media print {
+
+  @page {
+    size: A4;
+    margin: 0;
+  }
+
+  html,
+  body {
+    margin: 0 !important;
+    padding: 0 !important;
+
+    background:
+      #ffffff !important;
+  }
+
+  .report-document {
+    margin: 0 !important;
+    padding: 0 !important;
+
+    box-shadow:
+      none !important;
+  }
+
+  .pdf-page {
+    width:
+      210mm !important;
+
+    height:
+      297mm !important;
+
+    min-height:
+      297mm !important;
+
+    max-height:
+      297mm !important;
+
+    margin:
+      0 !important;
+
+    overflow:
+      hidden !important;
+
+    box-shadow:
+      none !important;
+
+    break-after:
+      page !important;
+
+    page-break-after:
+      always !important;
+  }
+
+  .pdf-page:last-child {
+    break-after:
+      auto !important;
+
+    page-break-after:
+      auto !important;
+  }
+
+  .pdf-area-card,
+  .pdf-actions-list .rec,
+  .pdf-maturity-box,
+  .pdf-gauge {
+    break-inside:
+      avoid !important;
+
+    page-break-inside:
+      avoid !important;
+  }
+}
+
+/* =========================================================
+   LINKS E ÍCONES - PRÓXIMOS PASSOS
+   ========================================================= */
+
+.pdf-service-icon {
+  width: 17px;
+  height: 17px;
+
+  flex: 0 0 17px;
+
+  color: #fe7d53;
+}
+
+.pdf-contact-button {
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  text-decoration: none;
+}
+
+.pdf-contact-button:hover {
+  color: #ffffff;
+
+  transform:
+    translateY(-1px);
+}
+
+.pdf-contact-details a {
+  display: block;
+
+  color:
+    rgba(
+      255,
+      255,
+      255,
+      0.42
+    );
+
+  text-decoration: none;
+}
+
+.pdf-contact-details a:hover {
+  color: #ffffff;
+
+  text-decoration: underline;
+}
+
+@media print {
+
+  .pdf-contact-button,
+  .pdf-contact-details a {
+    text-decoration: none !important;
+  }
+
+}

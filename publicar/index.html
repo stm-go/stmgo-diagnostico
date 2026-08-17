@@ -551,262 +551,449 @@
 
         <!-- Conteúdo entregue ao cliente -->
         <article
-          class="card report-card client-report"
+          class="client-report report-document"
           id="reportContent"
         >
-          <!-- Capa -->
-          <section class="report-cover">
-            <div class="report-cover-decoration"></div>
+          <!-- =========================================
+              PÁGINA 1
+              CAPA + SCORE GLOBAL
+              ========================================= -->
+          <section class="pdf-page pdf-page-1">
 
-            <div class="report-cover-top">
+            <div class="pdf-cover">
+              <div class="pdf-cover-content">
+
                 <img
                   src="./assets/stmgo-logo-branca.png"
                   alt="stmgo"
-                  class="report-logo"
+                  class="pdf-cover-logo"
                 >
 
-              <span class="report-confidential">
-                Confidencial
-              </span>
+                <div class="pdf-cover-kicker">
+                  DIAGNÓSTICO DE SEGURANÇA DIGITAL
+                </div>
+
+                <h1 class="pdf-cover-title">
+                  Relatório de Maturidade
+                  <br>
+                  em Segurança Digital
+                </h1>
+
+                <div
+                  class="pdf-cover-company"
+                  id="resultCompany"
+                >
+                  EMPRESA
+                </div>
+
+                <div
+                  class="pdf-cover-meta"
+                  id="resultMeta"
+                >
+                  Emitido em -- · confidencial
+                </div>
+
+              </div>
             </div>
 
-            <div class="report-cover-content">
-              <span class="report-eyebrow">
-                Diagnóstico de Segurança Digital
-              </span>
 
-              <h1 id="resultCompany">
-                Empresa
-              </h1>
+            <div class="pdf-page-body pdf-global-section">
 
-              <p class="report-cover-description">
-                Avaliação de maturidade, riscos e oportunidades de melhoria em
-                segurança digital.
+              <div class="pdf-section-kicker">
+                SCORE GLOBAL
+              </div>
+
+              <h2 class="pdf-section-title">
+                Maturidade Geral em Segurança Digital
+              </h2>
+
+              <p class="pdf-section-description">
+                O resultado abaixo reflete a avaliação consolidada
+                de todas as dimensões de segurança analisadas
+                no diagnóstico.
               </p>
+
+
+              <div class="pdf-global-score">
+
+                <div
+                  class="pdf-gauge"
+                  id="scoreGauge"
+                >
+                  <div class="pdf-gauge-track"></div>
+
+                  <div class="pdf-gauge-content">
+
+                    <div
+                      class="score-number"
+                      id="globalScore"
+                    >
+                      0%
+                    </div>
+
+                    <div
+                      class="level"
+                      id="maturityLevel"
+                    >
+                      -
+                    </div>
+
+                  </div>
+                </div>
+
+              </div>
+
+
+              <div class="pdf-maturity-box">
+                <p id="maturityDescription"></p>
+              </div>
+
+            </div>
+
+          </section>
+
+
+          <!-- =========================================
+              PÁGINA 2
+              ANÁLISE POR DIMENSÃO
+              ========================================= -->
+          <section class="pdf-page pdf-page-2">
+
+            <div class="pdf-page-body">
+
+              <div class="pdf-section-kicker">
+                ANÁLISE POR DIMENSÃO
+              </div>
+
+              <h2 class="pdf-section-title">
+                Score por Área
+              </h2>
+
+              <p class="pdf-section-description">
+                A análise segmentada permite identificar com precisão
+                quais dimensões demandam atenção prioritária.
+              </p>
+
 
               <div
-                id="resultMeta"
-                class="result-meta report-cover-meta"
+                class="score-grid pdf-area-grid"
+                id="areaScores"
               ></div>
+
             </div>
 
-            <div class="report-cover-footer">
-              <span>
-                Diagnóstico preparado pela stmgo
-              </span>
-
-              <span>
-                Uso exclusivo do cliente
-              </span>
-            </div>
           </section>
 
-          <!-- Resumo executivo -->
-          <section class="report-section report-executive">
-            <div class="report-section-heading">
-              <span class="report-eyebrow">
-                Resumo executivo
-              </span>
 
-              <h2>
-                Maturidade geral em segurança digital
+          <!-- =========================================
+              PÁGINA 3
+              AÇÕES + CONSIDERAÇÕES
+              ========================================= -->
+          <section class="pdf-page pdf-page-3">
+
+            <div class="pdf-page-body">
+
+              <div class="pdf-section-kicker">
+                PLANO DE AÇÃO
+              </div>
+
+              <h2 class="pdf-section-title">
+                Ações Recomendadas
               </h2>
 
-              <p>
-                O resultado representa uma visão consolidada das áreas avaliadas
-                durante a entrevista realizada pelo consultor da stmgo.
+              <p class="pdf-section-description">
+                Com base no diagnóstico realizado, as ações a seguir
+                foram definidas especificamente para fortalecer a
+                postura de segurança digital da
+                <strong id="actionsCompanyName">
+                  empresa
+                </strong>:
               </p>
-            </div>
 
-            <div class="report-score-layout">
-              <div class="score-main">
-                <span class="score-label">
-                  Pontuação geral
-                </span>
+
+              <div
+                id="recommendations"
+                class="pdf-actions-list"
+              ></div>
+
+
+              <div class="pdf-considerations">
+
+                <div class="pdf-section-kicker">
+                  OBSERVAÇÕES
+                </div>
+
+                <h2 class="pdf-section-title">
+                  Considerações do Especialista
+                </h2>
 
                 <div
-                  class="score-number"
-                  id="globalScore"
-                ></div>
-
-                <div
-                  class="level"
-                  id="maturityLevel"
-                ></div>
-              </div>
-
-              <div class="report-maturity-description">
-                <h3>
-                  Interpretação do resultado
-                </h3>
-
-                <p
-                  class="lead"
-                  id="maturityDescription"
-                ></p>
-              </div>
-            </div>
-          </section>
-
-          <!-- Considerações finais -->
-          <section class="report-section report-considerations">
-            <div class="report-section-heading">
-              <span class="report-eyebrow">
-                Análise consultiva
-              </span>
-
-              <h2>
-                Considerações do especialista
-              </h2>
-            </div>
-
-            <div
-              id="finalConsiderationsOutput"
-              class="final-considerations-output"
-            >
-              <p>
-                As considerações finais do diagnóstico serão apresentadas aqui.
-              </p>
-            </div>
-          </section>
-
-          <!-- Resultado por área -->
-          <section class="report-section report-section-light">
-            <div class="report-section-heading">
-              <span class="report-eyebrow">
-                Análise por dimensão
-              </span>
-
-              <h2>
-                Resultado por área
-              </h2>
-
-              <p>
-                A análise segmentada ajuda a identificar quais dimensões exigem
-                atenção prioritária.
-              </p>
-            </div>
-
-            <div
-              class="score-grid"
-              id="areaScores"
-            ></div>
-          </section>
-
-          <!-- Resumo das respostas -->
-          <section class="report-section">
-            <div class="report-section-heading">
-              <span class="report-eyebrow">
-                Visão consolidada
-              </span>
-
-              <h2>
-                Resumo das respostas
-              </h2>
-            </div>
-
-            <div
-              class="summary-grid"
-              id="answerSummary"
-            ></div>
-          </section>
-
-          <!-- Recomendações -->
-          <section class="report-section report-recommendations">
-            <div class="report-section-heading">
-              <span class="report-eyebrow">
-                Plano de evolução
-              </span>
-
-              <h2>
-                Recomendações prioritárias
-              </h2>
-
-              <p>
-                As recomendações abaixo foram definidas com base nos riscos e
-                oportunidades identificados durante o diagnóstico.
-              </p>
-            </div>
-
-            <div id="recommendations"></div>
-          </section>
-
-          <!-- Dados do diagnóstico -->
-          <section class="report-section report-section-light">
-            <div class="report-section-heading">
-              <span class="report-eyebrow">
-                Informações da avaliação
-              </span>
-
-              <h2>
-                Dados do diagnóstico
-              </h2>
-            </div>
-
-            <div
-              class="details-grid"
-              id="resultClientDetails"
-            ></div>
-          </section>
-
-          <!-- Próximos passos -->
-          <section class="report-next-steps">
-            <div class="report-next-steps-content">
-              <span class="report-eyebrow">
-                Próximos passos
-              </span>
-
-              <h2>
-                Vamos transformar a segurança digital da sua empresa?
-              </h2>
-
-              <p>
-                A stmgo apoia empresas na organização da tecnologia, redução de
-                riscos e evolução contínua da operação, sempre com uma comunicação
-                simples, próxima e orientada ao negócio.
-              </p>
-
-              <div class="report-service-tags">
-                <span>Segurança Digital</span>
-                <span>Gestão de TI</span>
-                <span>Nuvem</span>
-                <span>Continuidade</span>
-                <span>Atendimento sem “tecniquês”</span>
-              </div>
-
-              <div class="report-contact">
-                <img
-                  src="./assets/stmgo-logo-branca.png"
-                  alt="stmgo"
-                  class="report-logo"
+                  id="finalConsiderationsOutput"
+                  class="pdf-considerations-text"
                 >
+                  <p>
+                    As considerações finais serão apresentadas aqui.
+                  </p>
+                </div>
 
-                <span>
-                  Tecnologia que funciona para você.
-                </span>
               </div>
+
             </div>
+
           </section>
 
-          <!-- Rodapé -->
-          <footer class="report-footer">
-            <div class="brand report-footer-brand">
-                <img
-                  src="./assets/stmgo-logo-azul.png"
-                  alt="stmgo"
+
+          <!-- =========================================
+              PÁGINA 4
+              PRÓXIMOS PASSOS
+              ========================================= -->
+          <section class="pdf-page pdf-page-4">
+
+            <div class="pdf-next-steps">
+
+              <div class="pdf-next-content">
+
+                <div class="pdf-next-kicker">
+                  PRÓXIMOS PASSOS
+                </div>
+
+                <h2 class="pdf-next-title">
+                  Vamos transformar sua
+                  <br>
+                  operação juntos?
+                </h2>
+
+
+                <p class="pdf-next-description">
+                  Há 25 anos, a stmgo traduz complexidade tecnológica
+                  em resultado real para empresas. Somos os embaixadores
+                  da sua operação — antecipamos problemas, estruturamos
+                  processos e garantimos que a tecnologia trabalhe
+                  a favor do seu negócio.
+                </p>
+
+
+                <p class="pdf-next-highlight">
+                  É tecnologia que funciona para você.
+                  E não o contrário!
+                </p>
+
+
+                <div class="pdf-service-tags">
+
+                  <span class="pdf-service-tag">
+                    <svg
+                      class="pdf-service-icon"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                    >
+                      <path
+                        d="M12 3 5 6v5c0 4.8 2.9 8.2 7 10 4.1-1.8 7-5.2 7-10V6l-7-3Z"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                        stroke-linejoin="round"
+                      />
+                      <path
+                        d="m9.4 12 1.7 1.7 3.7-4"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+
+                    Segurança Digital
+                  </span>
+
+
+                  <span class="pdf-service-tag">
+                    <svg
+                      class="pdf-service-icon"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                    >
+                      <circle
+                        cx="12"
+                        cy="12"
+                        r="3"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                      />
+
+                      <path
+                        d="M19 12a7 7 0 0 0-.1-1l2-1.5-2-3.4-2.4 1a7.6 7.6 0 0 0-1.7-1L14.5 3h-5L9 6.1a7.6 7.6 0 0 0-1.7 1l-2.4-1-2 3.4 2 1.5a7 7 0 0 0 0 2l-2 1.5 2 3.4 2.4-1a7.6 7.6 0 0 0 1.7 1l.5 3.1h5l.5-3.1a7.6 7.6 0 0 0 1.7-1l2.4 1 2-3.4-2-1.5a7 7 0 0 0 .1-1Z"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.4"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+
+                    Gestão de TI
+                  </span>
+
+
+                  <span class="pdf-service-tag">
+                    <svg
+                      class="pdf-service-icon"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                    >
+                      <path
+                        d="M7.5 18h9.2a4.3 4.3 0 0 0 .5-8.6A5.7 5.7 0 0 0 6.5 8.2 4.9 4.9 0 0 0 7.5 18Z"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+
+                    Nuvem
+                  </span>
+
+
+                  <span class="pdf-service-tag">
+                    <svg
+                      class="pdf-service-icon"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                    >
+                      <rect
+                        x="4"
+                        y="5"
+                        width="16"
+                        height="14"
+                        rx="2"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                      />
+
+                      <path
+                        d="M8 9h8M8 13h4"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                        stroke-linecap="round"
+                      />
+                    </svg>
+
+                    Ferramentas de Colaboração
+                  </span>
+
+
+                  <span class="pdf-service-tag">
+                    <svg
+                      class="pdf-service-icon"
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                    >
+                      <path
+                        d="M5 5h14v10H9l-4 4V5Z"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                        stroke-linejoin="round"
+                      />
+
+                      <path
+                        d="M9 10h6"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                        stroke-linecap="round"
+                      />
+                    </svg>
+
+                    Atendimento "sem tecniquês"
+                  </span>
+
+                </div>
+
+
+                <a
+                  class="pdf-contact-button"
+                  href="https://wa.me/554430267597"
+                  target="_blank"
+                  rel="noopener noreferrer"
                 >
+                  Fale com a gente. Clique aqui!
+                </a>
+
+
+                <div class="pdf-contact-details">
+
+                  <a
+                    href="https://stmgo.com.br/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    www.stmgo.com.br
+                  </a>
+
+                  <a
+                    href="https://outlook.office.com/mail/deeplink/compose?to=contato@stmgo.com.br"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    contato@stmgo.com.br
+                  </a>
+
+                </div>
+
+              </div>
+
             </div>
 
-            <div>
-              <strong>
-                Diagnóstico de Segurança Digital
-              </strong>
 
-              <span>
-                Documento confidencial
-              </span>
-            </div>
-          </footer>
+            <footer class="pdf-final-footer">
+
+              <img
+                src="./assets/stmgo-logo-azul.png"
+                alt="stmgo"
+                class="pdf-footer-logo"
+              >
+
+              <div class="pdf-footer-info">
+
+                <div>
+                  Diagnóstico de Segurança Digital ·
+                  <strong id="reportFooterCompany">
+                    EMPRESA
+                  </strong>
+                </div>
+
+                <div>
+                  <span id="reportFooterDate">
+                    Emitido em --
+                  </span>
+                  · Confidencial
+                </div>
+
+              </div>
+
+            </footer>
+
+          </section>
+
+
+          <!--
+            Elementos mantidos apenas para compatibilidade
+            temporária com renderStoredResult().
+            Eles NÃO aparecerão no relatório.
+          -->
+          <div class="report-compatibility-data hidden">
+
+            <div id="answerSummary"></div>
+
+            <div id="resultClientDetails"></div>
+
+          </div>
+
         </article>
       </section>
     </main>

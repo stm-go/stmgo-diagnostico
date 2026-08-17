@@ -201,6 +201,206 @@ function formatDate(value) {
     .format(date);
 }
 
+function formatReportDate(
+  value
+) {
+  const date =
+    value
+      ? new Date(value)
+      : new Date();
+
+  const safeDate =
+    Number.isNaN(
+      date.getTime()
+    )
+      ? new Date()
+      : date;
+
+  return new Intl.DateTimeFormat(
+    "pt-BR",
+    {
+      timeZone:
+        "America/Sao_Paulo",
+
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    }
+  ).format(safeDate);
+}
+
+function getReportLevel(
+  score
+) {
+  const safeScore =
+    Math.max(
+      0,
+      Math.min(
+        100,
+        Number(score) || 0
+      )
+    );
+
+  return (
+    CONFIG.maturityLevels.find(
+      (level) =>
+        safeScore >= level.min &&
+        safeScore <= level.max
+    ) ||
+    CONFIG.maturityLevels[0]
+  );
+}
+
+function reportLevelColor(
+  levelId
+) {
+  return {
+    critical: "#c0392b",
+    initial: "#e07820",
+    moderate: "#c49a00",
+    conscious: "#27ae60",
+    optimized: "#1db954",
+  }[levelId] || "#e07820";
+}
+
+function reportLevelBackground(
+  levelId
+) {
+  return {
+    critical:
+      "rgba(192, 57, 43, 0.05)",
+
+    initial:
+      "rgba(224, 120, 32, 0.05)",
+
+    moderate:
+      "rgba(196, 154, 0, 0.05)",
+
+    conscious:
+      "rgba(39, 174, 96, 0.05)",
+
+    optimized:
+      "rgba(29, 185, 84, 0.05)",
+  }[levelId] ||
+  "rgba(224, 120, 32, 0.05)";
+}
+
+function buildReportGauge(
+  value
+) {
+  const score =
+    Math.max(
+      0,
+      Math.min(
+        100,
+        Number(value) || 0
+      )
+    );
+
+  /*
+   * 0% = extremo esquerdo
+   * 100% = extremo direito
+   */
+  const degrees =
+    (
+      score /
+      100
+    ) * 180;
+
+  const radians =
+    (
+      (
+        degrees -
+        180
+      ) *
+      Math.PI
+    ) / 180;
+
+  const cx = 110;
+  const cy = 110;
+  const radius = 80;
+
+  const endX =
+    cx +
+    radius *
+      Math.cos(
+        radians
+      );
+
+  const endY =
+    cy +
+    radius *
+      Math.sin(
+        radians
+      );
+
+  return `
+    <svg
+      viewBox="0 0 220 120"
+      width="220"
+      height="120"
+      aria-hidden="true"
+      style="
+        display: block;
+        width: 220px;
+        height: 120px;
+        overflow: visible;
+      "
+    >
+      <defs>
+        <linearGradient
+          id="stmgoGaugeGradient"
+          x1="0"
+          y1="0"
+          x2="1"
+          y2="0"
+        >
+          <stop
+            offset="0%"
+            stop-color="#FE7D53"
+          />
+
+          <stop
+            offset="100%"
+            stop-color="#9F0066"
+          />
+        </linearGradient>
+      </defs>
+
+      <path
+        d="
+          M30 110
+          A80 80 0 0 1
+          190 110
+        "
+        fill="none"
+        stroke="#e8e8e8"
+        stroke-width="16"
+        stroke-linecap="round"
+      />
+
+      ${
+        score > 0
+          ? `
+            <path
+              d="
+                M30 110
+                A80 80 0 0 1
+                ${endX.toFixed(2)}
+                ${endY.toFixed(2)}
+              "
+              fill="none"
+              stroke="url(#stmgoGaugeGradient)"
+              stroke-width="16"
+              stroke-linecap="round"
+            />
+          `
+          : ""
+      }
+    </svg>
+  `;
+}
+
 function answerLabel(value) {
   return (
     CONFIG.answerOptions.find(
@@ -377,12 +577,15 @@ function severityLabel(
 
 function printReport() {
   const report =
-    element("reportContent");
+    element(
+      "reportContent"
+    );
 
   if (!report) {
     alert(
       "Não foi possível localizar o diagnóstico."
     );
+
     return;
   }
 
@@ -390,568 +593,393 @@ function printReport() {
     window.open(
       "",
       "_blank",
-      "width=1000,height=800"
+      "width=1000,height=900"
     );
 
   if (!printWindow) {
     alert(
       "O navegador bloqueou a janela de impressão."
     );
+
     return;
   }
 
   const baseUrl =
-  new URL(
-    ".",
-    window.location.href
-  ).href;
+    new URL(
+      ".",
+      window.location.href
+    ).href;
 
   const reportHtml =
-    report.innerHTML;
+    report.outerHTML;
+
+  const companyName =
+    String(
+      state.client
+        ?.companyName ||
+      "cliente"
+    ).trim();
 
   printWindow.document.write(`
     <!DOCTYPE html>
 
     <html lang="pt-BR">
-      <head>
-        <meta charset="UTF-8">
 
-        <base href="${baseUrl}">
+      <head>
+
+        <meta
+          charset="UTF-8"
+        >
+
+        <base
+          href="${baseUrl}"
+        >
 
         <meta
           name="viewport"
-          content="width=device-width, initial-scale=1"
+          content="
+            width=device-width,
+            initial-scale=1
+          "
         >
 
         <title>
-          Diagnóstico de Segurança Digital
+          Diagnóstico de Segurança Digital - ${escapeHtml(
+            companyName
+          )}
         </title>
+
+        <link
+          rel="stylesheet"
+          href="./src/styles.css"
+        >
 
         <style>
 
           @page {
             size: A4;
-            margin:
-              14mm 12mm
-              16mm 12mm;
+            margin: 0;
           }
 
           * {
             box-sizing:
               border-box;
+
+            -webkit-print-color-adjust:
+              exact !important;
+
+            print-color-adjust:
+              exact !important;
           }
 
           html,
           body {
-            margin: 0;
-            padding: 0;
+            width:
+              210mm;
 
-            width: auto;
-            height: auto;
+            margin:
+              0 !important;
 
-            overflow: visible;
+            padding:
+              0 !important;
 
-            background: #ffffff;
-
-            color: #344054;
-
-            font-family:
-              Arial,
-              Helvetica,
-              sans-serif;
-
-            -webkit-print-color-adjust:
-              exact;
-
-            print-color-adjust:
-              exact;
+            background:
+              #ffffff !important;
           }
 
           body {
-            font-size: 10pt;
-            line-height: 1.5;
+            overflow:
+              visible !important;
           }
+
+
+          /*
+           * DOCUMENTO
+           */
 
           .client-report,
-          .report-card {
-            width: 100%;
-            max-width: none;
+          .report-document {
+            width:
+              210mm !important;
 
-            margin: 0;
-            padding: 0;
+            max-width:
+              210mm !important;
 
-            height: auto;
-            min-height: 0;
-            max-height: none;
-
-            overflow: visible;
-
-            border: 0;
-            box-shadow: none;
-          }
-
-          /* CABEÇALHO */
-
-          .report-header {
-            display: flex;
-            align-items: center;
-            justify-content:
-              space-between;
-
-            gap: 20px;
-
-            margin-bottom: 8mm;
+            margin:
+              0 !important;
 
             padding:
-              7mm 8mm;
-
-            background:
-              #072249;
-
-            color:
-              #ffffff;
-
-            border-bottom:
-              4px solid
-              #fe7d53;
-
-            break-inside:
-              avoid;
-          }
-
-          .badge {
-            padding:
-              5px 9px;
+              0 !important;
 
             border:
-              1px solid
-              rgba(
-                255,
-                255,
-                255,
-                0.35
-              );
-
-            border-radius:
-              999px;
-
-            color:
-              #ffffff;
-
-            font-size:
-              8pt;
-          }
-
-          /* SCORE PRINCIPAL */
-
-          .score-main {
-            margin-bottom:
-              8mm;
-
-            padding:
-              6mm;
-
-            text-align:
-              center;
-
-            break-inside:
-              avoid;
-          }
-
-          .score-main h1 {
-            margin:
-              0 0 3mm;
-
-            color:
-              #072249;
-
-            font-size:
-              22pt;
-          }
-
-          .score-number {
-            margin:
-              3mm 0;
-
-            color:
-              #9f0066;
-
-            font-size:
-              42pt;
-
-            font-weight:
-              800;
-          }
-
-          .level {
-            display:
-              inline-block;
-
-            padding:
-              5px 10px;
-
-            border-radius:
-              999px;
+              0 !important;
 
             background:
-              #f5f6f8;
+              #ffffff !important;
 
-            color:
-              #072249;
-
-            font-weight:
-              700;
+            box-shadow:
+              none !important;
           }
 
-          /* SEÇÕES */
 
-          .report-section {
-            display:
-              block;
+          /*
+           * CADA BLOCO = UMA PÁGINA A4
+           */
 
+          .pdf-page {
             width:
-              100%;
-
-            margin:
-              0 0 8mm;
-
-            padding:
-              0;
+              210mm !important;
 
             height:
-              auto;
+              297mm !important;
+
+            min-height:
+              297mm !important;
+
+            max-height:
+              297mm !important;
+
+            margin:
+              0 !important;
+
+            padding:
+              0 !important;
 
             overflow:
-              visible;
+              hidden !important;
 
-            break-inside:
-              auto;
-          }
-
-          .report-section h2 {
-            margin:
-              0 0 4mm;
-
-            padding-bottom:
-              2mm;
-
-            border-bottom:
-              1px solid
-              #e4e7ec;
-
-            color:
-              #072249;
-
-            font-size:
-              14pt;
+            box-shadow:
+              none !important;
 
             break-after:
-              avoid;
+              page !important;
+
+            page-break-after:
+              always !important;
           }
 
-          /* GRIDS */
+          .pdf-page:last-child {
+            break-after:
+              auto !important;
 
-          .details-grid,
-          .score-grid,
-          .summary-grid {
-            display:
-              grid;
+            page-break-after:
+              auto !important;
+          }
 
+
+          /*
+           * CANCELA AS REGRAS MOBILE
+           * DURANTE A IMPRESSÃO
+           */
+
+          .pdf-cover {
+            height:
+              332px !important;
+
+            min-height:
+              332px !important;
+          }
+
+          .pdf-page-body {
+            padding:
+              46px 58px !important;
+          }
+
+          .pdf-global-section {
+            padding-top:
+              40px !important;
+          }
+
+          .pdf-page-2
+          .pdf-page-body {
+            padding-top:
+              48px !important;
+          }
+
+          .pdf-page-3
+          .pdf-page-body {
+            padding-top:
+              46px !important;
+          }
+
+          .pdf-area-grid {
             grid-template-columns:
               repeat(
                 2,
-                minmax(0, 1fr)
-              );
-
-            gap:
-              4mm;
-
-            margin-bottom:
-              5mm;
+                minmax(
+                  0,
+                  1fr
+                )
+              ) !important;
           }
 
-          .score-grid {
-            grid-template-columns:
-              repeat(
-                4,
-                minmax(0, 1fr)
-              );
-          }
 
-          .detail-card,
-          .score-card,
-          .summary-card {
-            padding:
-              4mm;
+          /*
+           * ÚLTIMA PÁGINA
+           */
 
-            border:
-              1px solid
-              #e4e7ec;
+          .pdf-next-steps {
+            height:
+              624px !important;
 
-            border-radius:
-              8px;
-
-            background:
-              #ffffff;
-
-            break-inside:
-              avoid;
-          }
-
-          .score-card {
-            text-align:
-              center;
-          }
-
-          .score-card strong {
-            display:
-              block;
-
-            color:
-              #072249;
-
-            font-size:
-              18pt;
-          }
-
-          /* RECOMENDAÇÕES */
-
-          #recommendations {
-            display:
-              block;
-          }
-
-          .rec {
-            display:
-              block;
-
-            width:
-              100%;
-
-            margin:
-              0 0 5mm;
+            min-height:
+              624px !important;
 
             padding:
-              5mm;
+              64px 60px !important;
+          }
 
-            border:
-              1px solid
-              #e4e7ec;
-
-            border-left:
-              4px solid
-              #fe7d53;
-
-            border-radius:
-              8px;
-
-            background:
-              #ffffff;
+          .pdf-final-footer {
+            min-height:
+              70px !important;
 
             height:
-              auto;
-
-            max-height:
-              none;
-
-            overflow:
-              visible;
-
-            break-inside:
-              avoid;
-          }
-
-          .rec h3 {
-            margin:
-              0 0 2mm;
-
-            color:
-              #072249;
-
-            font-size:
-              11pt;
-          }
-
-          .rec p {
-            margin:
-              0 0 2mm;
-
-            font-size:
-              9.5pt;
-
-            line-height:
-              1.5;
-          }
-
-          .recommendation-detail {
-            margin-top:
-              3mm;
+              auto !important;
 
             padding:
-              3mm;
-
-            background:
-              #f8fafc;
-
-            border-radius:
-              6px;
+              20px 60px !important;
           }
 
-          .recommendation-deadline {
-            display:
-              flex;
-
-            justify-content:
-              space-between;
-
-            margin-top:
-              3mm;
-
-            padding:
-              3mm;
-
-            background:
-              #fff7f3;
-
-            border-radius:
-              6px;
+          .pdf-footer-info {
+            text-align:
+              right !important;
           }
 
-          .severity {
-            display:
-              inline-block;
 
-            padding:
-              3px 7px;
-
-            border-radius:
-              999px;
-
-            font-size:
-              7pt;
-
-            font-weight:
-              bold;
-
-            text-transform:
-              uppercase;
-          }
-
-          .severity-critical {
-            background:
-              #fef3f2;
-
-            color:
-              #b42318;
-          }
-
-          .severity-high {
-            background:
-              #fff6ed;
-
-            color:
-              #c4320a;
-          }
-
-          .severity-medium {
-            background:
-              #fffaeb;
-
-            color:
-              #b54708;
-          }
-
-          .severity-low {
-            background:
-              #ecfdf3;
-
-            color:
-              #067647;
-          }
-
-          /* Evita elementos da aplicação */
+          /*
+           * NÃO IMPRIME CONTROLES
+           */
 
           button,
-          .report-actions,
-          .no-print {
+          .no-print,
+          .report-toolbar,
+          .recommendation-actions,
+          .recommendation-editor-actions,
+          .report-compatibility-data {
             display:
               none !important;
           }
 
-          img {
-            max-width:
-              100%;
-          }
 
-          p,
-          li {
-            orphans: 3;
-            widows: 3;
-          }
+          /*
+           * SEGURANÇA CONTRA QUEBRAS
+           */
 
-          @media print {
+          .pdf-area-card,
+          .rec,
+          .pdf-maturity-box,
+          .pdf-gauge {
+            break-inside:
+              avoid !important;
 
-            html,
-            body {
-              height:
-                auto !important;
-
-              overflow:
-                visible !important;
-            }
-
-            .client-report,
-            .report-card,
-            .report-section {
-              height:
-                auto !important;
-
-              max-height:
-                none !important;
-
-              overflow:
-                visible !important;
-            }
-          }
-
-          .report-logo-area {
-            display: flex;
-            align-items: center;
-          }
-
-          .report-logo {
-            display: block;
-
-            width: auto;
-            height: 12mm;
-            max-width: 48mm;
-
-            object-fit: contain;
+            page-break-inside:
+              avoid !important;
           }
 
         </style>
+
       </head>
+
 
       <body>
 
-        <main class="client-report">
-          ${reportHtml}
-        </main>
+        ${reportHtml}
+
+        <script>
+
+          window.addEventListener(
+            "load",
+            async () => {
+
+              try {
+
+                if (
+                  document.fonts
+                ) {
+                  await document
+                    .fonts
+                    .ready;
+                }
+
+                const images =
+                  Array.from(
+                    document.images
+                  );
+
+                await Promise.all(
+                  images.map(
+                    (image) => {
+
+                      if (
+                        image.complete
+                      ) {
+                        return Promise
+                          .resolve();
+                      }
+
+                      return new Promise(
+                        (resolve) => {
+
+                          image.addEventListener(
+                            "load",
+                            resolve,
+                            {
+                              once: true
+                            }
+                          );
+
+                          image.addEventListener(
+                            "error",
+                            resolve,
+                            {
+                              once: true
+                            }
+                          );
+
+                        }
+                      );
+
+                    }
+                  )
+                );
+
+              } catch (
+                error
+              ) {
+
+                console.error(
+                  "Erro ao preparar impressão:",
+                  error
+                );
+
+              }
+
+              setTimeout(
+                () => {
+                  window.focus();
+                  window.print();
+                },
+                250
+              );
+
+            }
+          );
+
+          window.addEventListener(
+            "afterprint",
+            () => {
+              window.close();
+            }
+          );
+
+        <\/script>
 
       </body>
+
     </html>
   `);
 
   printWindow.document.close();
-
-  printWindow.focus();
-
-  setTimeout(
-    () => {
-      printWindow.print();
-    },
-    400
-  );
 }
 
 function buildResult() {
@@ -2832,313 +2860,416 @@ function renderStoredResult(
     client,
   } = record;
 
-  const approval =
-    result.approval || {};
+  const companyName =
+    String(
+      client.companyName ||
+      "Cliente"
+    ).trim();
 
-  const isApproved =
-    approval.status ===
-    "approved";
+  const companyUpper =
+    companyName.toUpperCase();
 
-  const finalConsiderations =
-  result.finalConsiderations ||
-  state.finalConsiderations ||
-  "";
+  const emittedDate =
+    formatReportDate(
+      record.completedAt ||
+      record.updatedAt ||
+      new Date()
+    );
 
-  element(
-    "resultCompany"
-  ).textContent =
-    client.companyName ||
-    "Cliente";
-
-  const updatedText =
-    record.updatedAt &&
-    record.updatedAt !==
-      record.completedAt
-      ? ` · Atualizado em ${formatDate(record.updatedAt)}`
-      : "";
-
-  element(
-    "resultMeta"
-  ).textContent =
-    `Criado em ${formatDate(record.completedAt)}${updatedText}`;
-
-  element(
-    "globalScore"
-  ).textContent =
-    `${result.global}%`;
-
-  element(
-    "maturityLevel"
-  ).textContent =
-    result.level.name;
-
-  element(
-    "maturityDescription"
-  ).textContent =
-    result.level.description;
-
-  const details = [
-    [
-      "Status do diagnóstico",
-      isApproved
-        ? "Aprovado"
-        : "Em revisão",
-    ],
-    [
-      "Aprovado por",
-      approval.approvedBy ||
-        client.consultantName ||
-        "-",
-    ],
-    [
-      "Data da aprovação",
-      approval.approvedAt
-        ? formatDate(
-            approval.approvedAt
-          )
-        : "-",
-    ],
-    [
-      "Consultor responsável",
-      client.consultantName ||
-        "-",
-    ],
-    [
-      "Contato",
-      client.contactName ||
-        "-",
-    ],
-    [
-      "E-mail",
-      client.contactEmail ||
-        "-",
-    ],
-    [
-      "Telefone",
-      client.contactPhone ||
-        "-",
-    ],
-    [
-      "Colaboradores",
-      client.employeeCount ||
-        "-",
-    ],
-    [
-      "Segmento",
-      client.segment ||
-        "-",
-    ],
-  ];
-
-  element(
-    "resultClientDetails"
-  ).innerHTML =
-    details
-      .map(
-        ([label, value]) => `
-          <div class="detail-card">
-            <div class="detail-label">
-              ${label}
-            </div>
-
-            <div class="detail-value">
-              ${escapeHtml(value)}
-            </div>
-          </div>
-        `
+  const globalScore =
+    Math.max(
+      0,
+      Math.min(
+        100,
+        Number(
+          result.global
+        ) || 0
       )
-      .join("") +
-    `
-      <div class="detail-card wide">
-        <div class="detail-label">
-          Observações gerais
+    );
+
+  const globalLevel =
+    result.level ||
+    getReportLevel(
+      globalScore
+    );
+
+  const globalColor =
+    reportLevelColor(
+      globalLevel.id
+    );
+
+  /*
+   * CAPA
+   */
+
+  if (
+    element(
+      "resultCompany"
+    )
+  ) {
+    element(
+      "resultCompany"
+    ).textContent =
+      companyUpper;
+  }
+
+  if (
+    element(
+      "resultMeta"
+    )
+  ) {
+    element(
+      "resultMeta"
+    ).textContent =
+      `Emitido em ${emittedDate} - confidencial`;
+  }
+
+
+  /*
+   * EMPRESA NA PÁGINA 3
+   */
+
+  if (
+    element(
+      "actionsCompanyName"
+    )
+  ) {
+    element(
+      "actionsCompanyName"
+    ).textContent =
+      companyUpper;
+  }
+
+
+  /*
+   * RODAPÉ
+   */
+
+  if (
+    element(
+      "reportFooterCompany"
+    )
+  ) {
+    element(
+      "reportFooterCompany"
+    ).textContent =
+      companyUpper;
+  }
+
+  if (
+    element(
+      "reportFooterDate"
+    )
+  ) {
+    element(
+      "reportFooterDate"
+    ).textContent =
+      `Emitido em ${emittedDate}`;
+  }
+
+
+  /*
+   * SCORE GLOBAL
+   */
+
+  const gauge =
+    element(
+      "scoreGauge"
+    );
+
+  if (gauge) {
+    gauge.innerHTML = `
+      ${buildReportGauge(
+        globalScore
+      )}
+
+      <div
+        class="pdf-gauge-content"
+      >
+        <div
+          class="score-number"
+          id="globalScore"
+          style="
+            color:
+              ${globalColor};
+          "
+        >
+          ${globalScore}%
         </div>
 
-        <div class="detail-value">
-          ${escapeHtml(client.clientNotes || "Nenhuma observação informada.")}
+        <div
+          class="level"
+          id="maturityLevel"
+          style="
+            background:
+              ${globalColor};
+            color:
+              #ffffff;
+          "
+        >
+          ${escapeHtml(
+            globalLevel.name
+          )}
         </div>
       </div>
     `;
+  }
 
-  const summary =
-    result.summary ||
-    summarizeAnswers(
-      record.answers || {}
-    );
 
-  const summaryItems = [
-    [
-      summary.yes || 0,
-      "Sim",
-    ],
-    [
-      summary.partial || 0,
-      "Parcialmente",
-    ],
-    [
-      summary.no || 0,
-      "Não",
-    ],
-    [
-      (summary.unknown || 0) +
-        (summary.unanswered || 0),
-      "Pendentes",
-    ],
-  ];
-
-  element(
-    "answerSummary"
-  ).innerHTML =
-    summaryItems
-      .map(
-        ([value, label]) => `
-          <div class="summary-card">
-            <strong>
-              ${value}
-            </strong>
-
-            <span>
-              ${label}
-            </span>
-          </div>
-        `
-      )
-      .join("");
-
-  element(
-    "areaScores"
-  ).innerHTML =
-    result.scores
-      .map(
-        (score) => `
-          <div class="score-card">
-            <span>
-              ${escapeHtml(score.name)}
-            </span>
-
-            <strong>
-              ${score.score}%
-            </strong>
-          </div>
-        `
-      )
-      .join("");
+  /*
+   * DESCRIÇÃO DA MATURIDADE
+   */
 
   if (
-    !result.recommendations.length
+    element(
+      "maturityDescription"
+    )
   ) {
     element(
-      "recommendations"
-    ).innerHTML =
-      '<p class="lead">Nenhuma recomendação crítica foi gerada.</p>';
-  } else {
+      "maturityDescription"
+    ).textContent =
+      globalLevel.description ||
+      "";
+  }
+
+  const maturityBox =
+    document.querySelector(
+      ".pdf-maturity-box"
+    );
+
+  if (maturityBox) {
+    maturityBox.style
+      .borderLeftColor =
+      globalColor;
+
+    maturityBox.style
+      .background =
+      reportLevelBackground(
+        globalLevel.id
+      );
+  }
+
+
+  /*
+   * SCORE POR ÁREA
+   */
+
+  const areaScores =
     element(
-    "recommendations"
-  ).innerHTML =
-    result.recommendations
-      .map(
-        (
-          recommendation,
-          index
-        ) => {
-          const severity =
-            recommendation.severity ||
-            "medium";
+      "areaScores"
+    );
 
-          const businessImpact =
-            String(
-              recommendation
-                .businessImpact ||
-              ""
-            ).trim();
+  if (areaScores) {
+    areaScores.innerHTML =
+      (result.scores || [])
+        .map(
+          (score) => {
+            const value =
+              Math.max(
+                0,
+                Math.min(
+                  100,
+                  Number(
+                    score.score
+                  ) || 0
+                )
+              );
 
-          const suggestedDeadline =
-            String(
-              recommendation
-                .suggestedDeadline ||
-              ""
-            ).trim();
+            const level =
+              getReportLevel(
+                value
+              );
 
-          return `
-            <article class="rec">
-              <div class="rec-head">
-                <small>
-                  Prioridade ${index + 1}
-                </small>
-
-                <span
-                  class="severity severity-${escapeHtml(
-                    severity
-                  )}"
-                >
+            return `
+              <article
+                class="
+                  score-card
+                  pdf-area-card
+                  level-${escapeHtml(
+                    level.id
+                  )}
+                "
+              >
+                <span>
                   ${escapeHtml(
-                    severityLabel(
-                      severity
-                    )
+                    score.name
                   )}
                 </span>
-              </div>
 
-              <h3>
-                ${escapeHtml(
-                  recommendation.title
-                )}
-              </h3>
+                <strong
+                  class="pdf-area-score-value"
+                >
+                  ${value}%
+                </strong>
 
-              <p class="recommendation-description">
-                ${escapeHtml(
-                  recommendation.description
-                )}
-              </p>
+                <div
+                  class="pdf-area-progress"
+                >
+                  <div
+                    class="pdf-area-progress-bar"
+                    style="
+                      width:
+                        ${value}%;
+                    "
+                  ></div>
+                </div>
 
-              ${
-                businessImpact
-                  ? `
-                    <div class="recommendation-detail">
-                      <strong>
-                        Impacto para o negócio
-                      </strong>
-
-                      <p>
-                        ${escapeHtml(
-                          businessImpact
-                        )}
-                      </p>
-                    </div>
-                  `
-                  : ""
-              }
-
-              ${
-                suggestedDeadline
-                  ? `
-                    <div class="recommendation-deadline">
-                      <span>
-                        Prazo sugerido
-                      </span>
-
-                      <strong>
-                        ${escapeHtml(
-                          suggestedDeadline
-                        )}
-                      </strong>
-                    </div>
-                  `
-                  : ""
-              }
-            </article>
-          `;
-        }
-      )
-      .join("");
+                <div
+                  class="pdf-area-level"
+                >
+                  ${escapeHtml(
+                    level.name
+                  )}
+                </div>
+              </article>
+            `;
+          }
+        )
+        .join("");
   }
-  const considerationsOutput =
-  element(
-    "finalConsiderationsOutput"
-  );
 
-  if (considerationsOutput) {
-    considerationsOutput.innerHTML =
+
+  /*
+   * AÇÕES RECOMENDADAS
+   *
+   * O modelo de referência possui
+   * duas ações prioritárias na
+   * terceira página.
+   */
+
+  const recommendations =
+    Array.isArray(
+      result.recommendations
+    )
+      ? result.recommendations
+          .slice(
+            0,
+            2
+          )
+      : [];
+
+  const recommendationsOutput =
+    element(
+      "recommendations"
+    );
+
+  if (
+    recommendationsOutput
+  ) {
+    if (
+      !recommendations.length
+    ) {
+      recommendationsOutput
+        .innerHTML = `
+          <article class="rec">
+            <div class="rec-head">
+              <small>
+                PLANO DE AÇÃO
+              </small>
+            </div>
+
+            <h3>
+              Nenhuma ação prioritária identificada
+            </h3>
+
+            <p class="recommendation-description">
+              O diagnóstico não gerou ações prioritárias para este cenário.
+            </p>
+          </article>
+        `;
+    } else {
+      recommendationsOutput
+        .innerHTML =
+        recommendations
+          .map(
+            (
+              recommendation,
+              index
+            ) => {
+              const description =
+                String(
+                  recommendation
+                    .description ||
+                  ""
+                ).trim();
+
+              const businessImpact =
+                String(
+                  recommendation
+                    .businessImpact ||
+                  ""
+                ).trim();
+
+              /*
+               * No relatório do cliente,
+               * impacto e recomendação
+               * viram um único texto,
+               * como no modelo original.
+               */
+              const actionText =
+                [
+                  description,
+                  businessImpact,
+                ]
+                  .filter(
+                    Boolean
+                  )
+                  .join(" ");
+
+              return `
+                <article
+                  class="rec"
+                >
+                  <div
+                    class="rec-head"
+                  >
+                    <small>
+                      AÇÃO ${index + 1}
+                    </small>
+                  </div>
+
+                  <h3>
+                    ${escapeHtml(
+                      recommendation.title ||
+                      `Ação ${index + 1}`
+                    )}
+                  </h3>
+
+                  <p
+                    class="recommendation-description"
+                  >
+                    ${escapeHtml(
+                      actionText
+                    )}
+                  </p>
+                </article>
+              `;
+            }
+          )
+          .join("");
+    }
+  }
+
+
+  /*
+   * CONSIDERAÇÕES
+   */
+
+  const finalConsiderations =
+    result.finalConsiderations ||
+    state.finalConsiderations ||
+    "";
+
+  const considerationsOutput =
+    element(
+      "finalConsiderationsOutput"
+    );
+
+  if (
+    considerationsOutput
+  ) {
+    considerationsOutput
+      .innerHTML =
       formatParagraphs(
         finalConsiderations
       );
