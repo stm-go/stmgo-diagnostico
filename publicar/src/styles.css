@@ -2983,11 +2983,8 @@ button:disabled,
 
 .pdf-cover {
   position: relative;
-
-  height: 320px;
-
+  height: 420px;
   overflow: hidden;
-
   background:
     linear-gradient(
       160deg,
@@ -2995,7 +2992,6 @@ button:disabled,
       #072249 60%,
       #0d1f3c 100%
     );
-
   color: #ffffff;
 }
 
@@ -3104,7 +3100,7 @@ button:disabled,
    ========================================================= */
 
 .pdf-global-section {
-  padding: 48px 60px;
+  padding: 36px 60px 28px;
 }
 
 
@@ -3993,4 +3989,53 @@ p + p {
 
 .pdf-page-analysis-actions .pdf-considerations-text p {
   margin: 0 0 7px;
+}
+
+/* =========================================================
+   PÁGINA FINAL COM CONSIDERAÇÕES + BLOCO AZUL EMBAIXO
+   ========================================================= */
+
+.pdf-page-final {
+  height: 1123px;
+  min-height: 1123px;
+  max-height: 1123px;
+}
+
+.pdf-page-final-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.pdf-final-considerations {
+  padding: 44px 60px 24px;
+  background: #ffffff;
+}
+
+.pdf-final-considerations .pdf-section-title {
+  margin-bottom: 12px;
+}
+
+.pdf-final-considerations .pdf-considerations-text {
+  font-size: 13px;
+  line-height: 1.75;
+}
+
+.pdf-final-considerations .pdf-considerations-text p {
+  margin: 0 0 10px;
+}
+
+.pdf-final-bottom {
+  margin-top: auto;
+}
+
+.pdf-final-bottom .pdf-next-steps {
+  height: 600px;
+  min-height: 600px;
+  padding: 52px 60px;
+}
+
+.pdf-final-bottom .pdf-final-footer {
+  min-height: 74px;
+  padding: 20px 60px;
 }
