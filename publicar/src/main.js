@@ -774,10 +774,10 @@ function printReport() {
 
           .pdf-cover {
             height:
-              332px !important;
+              420px !important;
 
             min-height:
-              332px !important;
+              420px !important;
           }
 
           .pdf-page-body {
@@ -874,6 +874,16 @@ function printReport() {
 
             page-break-inside:
               avoid !important;
+          }
+          
+          /* CAPA - MESMA ALTURA DA PRE-VISUALIZACAO */
+          .pdf-page-1 .pdf-cover {
+            height: 420px !important;
+            min-height: 420px !important;
+            max-height: 420px !important;
+
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
           }
 
         </style>

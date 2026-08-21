@@ -6,6 +6,11 @@ import {
 const createClient =
   window.supabase?.createClient;
 
+const DRAFT_KEYS = [
+  "stmgo-diagnostico-draft-v1",
+  "stmgo-diagnostico-passo-4-draft",
+];
+
 if (!createClient) {
   throw new Error(
     "A biblioteca do Supabase não foi carregada."
