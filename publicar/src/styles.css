@@ -3911,3 +3911,86 @@ p + p {
   overflow-wrap: anywhere;
   word-break: break-word;
 }
+
+/* =========================================================
+   PÁGINA 2 - SCORE + PLANO DE AÇÃO
+   ========================================================= */
+
+.pdf-page-analysis-actions .pdf-page-body {
+  padding: 38px 60px 32px;
+}
+
+/* Score por área mais compacto */
+.pdf-page-analysis-actions .pdf-area-grid {
+  margin-top: 18px;
+  gap: 10px;
+}
+
+.pdf-page-analysis-actions .pdf-area-card {
+  padding: 18px 20px;
+  min-height: 0;
+}
+
+.pdf-page-analysis-actions .pdf-area-card h3 {
+  margin-bottom: 4px;
+}
+
+.pdf-page-analysis-actions .pdf-area-card .score-number {
+  margin: 2px 0 6px;
+}
+
+
+/* Separador entre score e ações */
+.pdf-combined-divider {
+  height: 1px;
+  margin: 28px 0 24px;
+  background: #e7e9ee;
+}
+
+
+/* Plano de ação */
+.pdf-page-analysis-actions .pdf-actions-description {
+  margin-bottom: 16px;
+}
+
+.pdf-page-analysis-actions .pdf-actions-list {
+  display: grid;
+  gap: 9px;
+}
+
+.pdf-page-analysis-actions .pdf-actions-list .rec {
+  margin: 0;
+  padding: 14px 18px;
+}
+
+.pdf-page-analysis-actions .pdf-actions-list .rec h3 {
+  margin: 3px 0 5px;
+  font-size: 13px;
+}
+
+.pdf-page-analysis-actions .pdf-actions-list .rec p {
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+
+/* Considerações finais */
+.pdf-page-analysis-actions .pdf-considerations {
+  margin-top: 22px;
+  padding-top: 20px;
+  border-top: 1px solid #e7e9ee;
+}
+
+.pdf-page-analysis-actions .pdf-considerations .pdf-section-title {
+  margin-bottom: 10px;
+}
+
+.pdf-page-analysis-actions .pdf-considerations-text {
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+.pdf-page-analysis-actions .pdf-considerations-text p {
+  margin: 0 0 7px;
+}
